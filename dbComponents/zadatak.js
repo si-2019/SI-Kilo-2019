@@ -2,8 +2,9 @@ const Sequelize = require("sequelize");
 
 module.exports = function(sequelize){
     const Zadatak = sequelize.define("zadatak",{
+        idZadatak : {type: Sequelize.INTEGER, primaryKey : true, autoIncrement : true},
         idZadaca  : Sequelize.INTEGER,
-        nazivZadataka : Sequelize.STRING,
+        redniBrojZadatkaUZadaci : Sequelize.INTEGER,
         maxBrojBodova : Sequelize.INTEGER,
         brojOstvarenihBodova : Sequelize.INTEGER,
         profesorovKomentar : Sequelize.STRING,
@@ -12,6 +13,12 @@ module.exports = function(sequelize){
         sadrzajFile : Sequelize.BLOB,
         velicinaFile : Sequelize.INTEGER,
         mimeTipUpdateZadatka : Sequelize.STRING
+    }, {
+        timestamps: false,
+        freezeTableName: true,
+        tableName: 'Zadatak' 
     })
     return Zadatak;
 };
+
+//DROP TABLE mimeTips, zadataks, zadaca

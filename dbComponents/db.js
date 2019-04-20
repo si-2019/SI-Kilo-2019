@@ -11,12 +11,12 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 //import modela
-db.zadaca = sequelize.import(__dirname + '/zadaca.js');
-db.zadatak = sequelize.import(__dirname + '/zadatak.js');
-db.mimeTip = sequelize.import(__dirname + '/mimeTip.js');
+db.Zadaca = sequelize.import(__dirname + '/zadaca.js');
+db.Zadatak = sequelize.import(__dirname + '/zadatak.js');
+db.MimeTip = sequelize.import(__dirname + '/mimeTip.js');
 
 //relacije
-db.zadaca.hasMany(db.zadatak, {as: 'zadaci' , foreignKey: 'idZadaca' });
-db.zadatak.hasMany(db.mimeTip, {as: 'mimeTipovi' , foreignKey: 'idZadatak' });
+db.Zadaca.hasMany(db.Zadatak, {as: 'zadaci' , foreignKey: 'idZadaca' });
+db.Zadatak.hasMany(db.MimeTip, {as: 'mimeTipovi' , foreignKey: 'idZadatak' });
 
-module.exports=db;
+module.exports = db;
