@@ -20,5 +20,3 @@ module.exports = function(sequelize){
     })
     return Zadatak;
 };
-
-//DROP TABLE mimeTips, zadataks, zadaca

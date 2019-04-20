@@ -11,13 +11,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('dev'))
 
-db.sequelize.sync({force:true}).then(() => {
+db.sequelize.sync({force:true}).then(() => { //force:true je da se nas dio baze uvijek iznova kreira
     console.log("Usao u bazu!");
 }).catch((e) => {
     console.log("greska");
     console.log(e);
 });
-
 
 app.post('/addZadaca', function(req, res) {
     var bodyReq = req.body;
@@ -60,9 +59,6 @@ app.post('/addZadaca', function(req, res) {
                 })
             }
         });
-
-        
-
 });
 
 app.listen(6001);
