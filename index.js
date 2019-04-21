@@ -83,8 +83,57 @@ app.get('/getZadace', function(req, res) {
             nizZadaca.push({id : zadace[i].idZadaca, naziv : zadace[i].naziv});
         }
         res.type("json");
-        res.end(JSON.stringify(nizZadaca))
+        res.end(JSON.stringify(nizZadaca));
     });
+});
+
+app.get('/getZadacaById/:idZadaca', function(req, res) {
+
+    var data = null;
+    var mimeTipovi = [".pdf", ".zip", ".m", ".doc", ".txt"];
+
+    db.Zadaca.findOne({where:{
+        idZadaca : req.params.idZadaca
+    }}).then(function(zadaca){
+        data = {
+            idPredmet : zadaca.idPredmet,
+            naziv : zadaca.naziv,
+            datum : zadaca.rokZaPredaju,      // ovo treba rijesiti
+            vrijeme : zadaca.rokZaPredaju,    // ovo treba rijesiti
+            postavka : zadaca.postavka,  
+            brojZadataka : zadaca.brojZadataka,
+            sviTipoviIsti : false,            // ovo neka stoji false po defaultu jer je to samo pomagalo za profesora
+            ukupnoBodova : zadaca.ukupnoBodova,
+            sviBodoviIsti : false // ovo neka stoji false po defaultu jer je to samo pomagalo za profesora
+        };
+
+        db.Zadatak.findAll({where:{
+            idZadaca : req.params.idZadaca
+        }}).then(function (zadaciZadace){
+            var listaBodovaTMP = [];
+            var listaTipovaTMP = [[]];
+            for(let i = 0; i < zadaciZadace.length; i++) {
+                listaBodovaTMP.push(zadaciZadace[i].maxBrojBodova);
+                db.MimeTip.findAll({where:{
+                    idZadatak : zadaciZadace[i].idZadatak
+                }}).then(function(tipoviZadatka){
+                    for(let j = 0; j < tipoviZadatka.length; j++) {
+                        var listaTipovaJednogZadatka = [false, false, false, false, false];
+                        for(let k = 0; k < 5; k++) {
+                            if(mimeTipovi[k] === tipoviZadatka[j].mimeTip) {
+                                listaTipovaJednogZadatka[k] = true;
+                            }
+                        }    
+                        listaTipovaTMP.push(listaTipovaJednogZadatka);
+                    }
+                    data.listaBodova = listaBodovaTMP;
+                    data.listaTipova = listaTipovaTMP;
+                    res.send(data);
+                })
+            }
+        })
+    })
+
 });
 
 app.listen(6001);
