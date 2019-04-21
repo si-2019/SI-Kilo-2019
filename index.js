@@ -38,7 +38,6 @@ app.post('/addZadaca', function(req, res) {
                     ukupniOstvareniBodovi : 0,
                     postavka: bodyReq.postavka,
                 }}).then(function(dodanaZadaca){
-                    console.log(dodanaZadaca);
                     var idDodaneZadace = dodanaZadaca[0].idZadaca;
                     for(let i = 0; i < dodanaZadaca[0].brojZadataka; i++) {
                         db.Zadatak.findOrCreate({where :{
@@ -135,6 +134,59 @@ app.get('/getZadacaById/:idZadaca', function(req, res) {
         })
     })
 });
+/*
+app.put('zadaca/:idZadace', function(req,res){ // update
+
+    var bodyReq = req.body;
+
+    db.Zadaca.findOne({where:{
+        idZadaca : req.params.idZadaca
+    }}).then(function(zadaca){
+        if(zadaca){
+            zadaca.update({
+                naziv : bodyReq.naziv,
+                brojZadataka : bodyReq.brojZadataka,
+                rokZaPredaju : bodyReq.datum + " " + bodyReq.vrijeme + ":59",
+                ukupnoBodova : bodyReq.ukupnoBodova,
+                ukupniOstvareniBodovi : 0,
+                postavka: bodyReq.postavka
+            }).then(function(updateZadaca){
+                var idDodaneZadace = updateZadaca[0].idZadaca;
+                for(let i = 0; i < updateZadaca[0].brojZadataka; i++) {
+                    db.Zadatak.update({where :{
+                        idZadaca : idDodaneZadace,
+                        redniBrojZadatkaUZadaci : i,
+                        maxBrojBodova : bodyReq.listaBodova[i],
+                        brojOstvarenihBodova : 0,
+                        profesorovKomentar : "",
+                        datumPredaje : null,
+                        statusZadatka : "neposlan",
+                        sadrzajFile : null,
+                        velicinaFile : null,
+                        mimeTipUpdateZadatka : null             
+                    }}).then(function(dodaniZadatak){
+                        var idDodanogZadatka = dodaniZadatak[0].idZadatak;
+                        var mimeTipovi = [".pdf", ".zip", ".m", ".doc", ".txt"];
+                        for(let j = 0; j < 5; j++) {    
+                            if(bodyReq.listaTipova[i][j] === true) {
+                                db.MimeTip.update({where: {
+                                    idZadatak : idDodanogZadatka,
+                                    mimeTip : mimeTipovi[j]
+                                }})
+                            }    
+                        }  
+                        res.status(200).send();
+                    })
+                }   
+            })
+        }else{
+            res.send(null);
+        }
+    })
+
+}) 
+*/
+// pomocne funkcije
 
 function dajDatum(dateTime) {
     var godina = dateTime.getFullYear().toString();
