@@ -106,34 +106,34 @@ app.get('/getZadacaById/:idZadaca', function(req, res) {
             ukupnoBodova : zadaca.ukupnoBodova,
             sviBodoviIsti : false // ovo neka stoji false po defaultu jer je to samo pomagalo za profesora
         };
-
-        db.Zadatak.findAll({where:{
-            idZadaca : req.params.idZadaca
-        }}).then(function (zadaciZadace){
+        db.Zadatak.findAll({
+            include: [{
+              model: db.MimeTip,
+              as: 'mimeTipovi',
+            }],
+            where: {idZadaca : req.params.idZadaca}
+          }).then(function (zadaciZadace){
             var listaBodovaTMP = [];
-            var listaTipovaTMP = [[]];
-            for(let i = 0; i < zadaciZadace.length; i++) {
+            var listaTipovaTMP = [];
+
+            for(let i = 0; i < zadaciZadace.length; i++) {  //prolazi kroz zadatke
+
                 listaBodovaTMP.push(zadaciZadace[i].maxBrojBodova);
-                db.MimeTip.findAll({where:{
-                    idZadatak : zadaciZadace[i].idZadatak
-                }}).then(function(tipoviZadatka){
-                    for(let j = 0; j < tipoviZadatka.length; j++) {
-                        var listaTipovaJednogZadatka = [false, false, false, false, false];
-                        for(let k = 0; k < 5; k++) {
-                            if(mimeTipovi[k] === tipoviZadatka[j].mimeTip) {
-                                listaTipovaJednogZadatka[k] = true;
-                            }
-                        }    
-                        listaTipovaTMP.push(listaTipovaJednogZadatka);
-                    }
-                    data.listaBodova = listaBodovaTMP;
-                    data.listaTipova = listaTipovaTMP;
-                    res.send(data);
-                })
+                var listaTipovaJednogZadatka = [false, false, false, false, false];
+                for(let j = 0; j < zadaciZadace[i].mimeTipovi.length; j++) {    //prolazi kroz mimeTipove i-tog zadatka
+                    for(let k = 0; k < 5; k++) {
+                        if(mimeTipovi[k] === zadaciZadace[i].mimeTipovi[j].mimeTip) {
+                            listaTipovaJednogZadatka[k] = true;
+                        }
+                    }    
+                }
+                listaTipovaTMP.push(listaTipovaJednogZadatka);
             }
+            data.listaBodova = listaBodovaTMP;
+            data.listaTipova = listaTipovaTMP;
+            res.send(data);
         })
     })
-
 });
 
 app.listen(6001);
