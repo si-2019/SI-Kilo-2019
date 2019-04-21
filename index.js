@@ -98,13 +98,13 @@ app.get('/getZadacaById/:idZadaca', function(req, res) {
         data = {
             idPredmet : zadaca.idPredmet,
             naziv : zadaca.naziv,
-            datum : zadaca.rokZaPredaju,      // ovo treba rijesiti
-            vrijeme : zadaca.rokZaPredaju,    // ovo treba rijesiti
+            datum : dajDatum(zadaca.rokZaPredaju),      // ovo treba rijesiti
+            vrijeme : dajVrijeme(zadaca.rokZaPredaju),    // ovo treba rijesiti
             postavka : zadaca.postavka,  
             brojZadataka : zadaca.brojZadataka,
-            sviTipoviIsti : false,            // ovo neka stoji false po defaultu jer je to samo pomagalo za profesora
+            sviTipoviIsti : false,            
             ukupnoBodova : zadaca.ukupnoBodova,
-            sviBodoviIsti : false // ovo neka stoji false po defaultu jer je to samo pomagalo za profesora
+            sviBodoviIsti : false 
         };
         db.Zadatak.findAll({
             include: [{
@@ -136,4 +136,26 @@ app.get('/getZadacaById/:idZadaca', function(req, res) {
     })
 });
 
+function dajDatum(dateTime) {
+    var godina = dateTime.getFullYear().toString();
+    var mjesec = (dateTime.getMonth() + 1).toString();
+    var dan = dateTime.getDate().toString();
+
+    if(mjesec < 10) {
+        mjesec = "0" + mjesec;
+    }
+
+    if(dan < 10) {
+        dan = "0" + dan;
+    }
+
+    return godina + "-" + mjesec + "-" + dan;
+};
+
+function dajVrijeme(dateTime) {
+    return dateTime.toString().substring(16,21);
+};
+
+
 app.listen(6001);
+
