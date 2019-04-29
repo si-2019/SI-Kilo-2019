@@ -95,6 +95,8 @@ app.get('/getZadacaById/:idZadaca', function(req, res) {
         idZadaca : req.params.idZadaca
     }}).then(function(zadaca){
         data = {
+            idZadaca : req.params.idZadaca,
+            radnja : "Azuriranje",
             idPredmet : zadaca.idPredmet,
             naziv : zadaca.naziv,
             datum : dajDatum(zadaca.rokZaPredaju),      // ovo treba rijesiti
@@ -134,9 +136,9 @@ app.get('/getZadacaById/:idZadaca', function(req, res) {
         })
     })
 });
-/*
-app.put('zadaca/:idZadace', function(req,res){ // update
 
+app.put('zadaca/:idZadace', function(req,res){ // update
+/*
     var bodyReq = req.body;
 
     db.Zadaca.findOne({where:{
@@ -182,10 +184,10 @@ app.put('zadaca/:idZadace', function(req,res){ // update
         }else{
             res.send(null);
         }
-    })
-
+    })*/
+res.status(200).send();
 }) 
-*/
+
 // pomocne funkcije
 
 function dajDatum(dateTime) {
