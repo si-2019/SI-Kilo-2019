@@ -137,12 +137,12 @@ app.get('/getZadacaById/:idZadaca', function(req, res) {
     })
 });
 
-app.put('zadaca/:idZadace', function(req,res){ // update
+app.put('/zadaca/:idZadace', function(req,res){ // update
 /*
     var bodyReq = req.body;
 
     db.Zadaca.findOne({where:{
-        idZadaca : req.params.idZadaca
+        idZadaca : req.params.idZadace
     }}).then(function(zadaca){
         if(zadaca){
             zadaca.update({
@@ -153,39 +153,48 @@ app.put('zadaca/:idZadace', function(req,res){ // update
                 ukupniOstvareniBodovi : 0,
                 postavka: bodyReq.postavka
             }).then(function(updateZadaca){
-                var idDodaneZadace = updateZadaca[0].idZadaca;
-                for(let i = 0; i < updateZadaca[0].brojZadataka; i++) {
-                    db.Zadatak.update({where :{
-                        idZadaca : idDodaneZadace,
-                        redniBrojZadatkaUZadaci : i,
-                        maxBrojBodova : bodyReq.listaBodova[i],
-                        brojOstvarenihBodova : 0,
-                        profesorovKomentar : "",
-                        datumPredaje : null,
-                        statusZadatka : "neposlan",
-                        sadrzajFile : null,
-                        velicinaFile : null,
-                        mimeTipUpdateZadatka : null             
-                    }}).then(function(dodaniZadatak){
-                        var idDodanogZadatka = dodaniZadatak[0].idZadatak;
-                        var mimeTipovi = [".pdf", ".zip", ".m", ".doc", ".txt"];
-                        for(let j = 0; j < 5; j++) {    
-                            if(bodyReq.listaTipova[i][j] === true) {
-                                db.MimeTip.update({where: {
-                                    idZadatak : idDodanogZadatka,
-                                    mimeTip : mimeTipovi[j]
-                                }})
-                            }    
-                        }  
-                        res.status(200).send();
-                    })
-                }   
+                db.Zadatak.findAll({where : {
+                    idZadaca : updateZadaca.idZadaca
+                }}).then(function(zadaci){
+                    for(var i = 0; i < updateZadaca.brojZadataka; i++) {
+                        zadaci[i].update({where :{
+                            idZadaca : updateZadaca.idZadaca,
+                            redniBrojZadatkaUZadaci : i,
+                            maxBrojBodova : bodyReq.listaBodova[i],
+                            brojOstvarenihBodova : 0,
+                            profesorovKomentar : "",
+                            datumPredaje : null,
+                            statusZadatka : "neposlan",
+                            sadrzajFile : null,
+                            velicinaFile : null,
+                            mimeTipUpdateZadatka : null             
+                        }}).then(function(updateZadatak){
+                            db.mimeTip.findAll({where : {
+                                idZadatak : updateZadatak.idZadatak
+                            }}).then(function(mimeTipovi){
+                                for(var i = 0; i < updateZadatak.listaTipova.length; i++) {
+                                    mimeTipovi[i].update
+                                }
+                            })
+                            var mimeTipovi = [".pdf", ".zip", ".m", ".doc", ".txt"];
+                            for(let j = 0; j < 5; j++) {    
+                                if(bodyReq.listaTipova[i][j] === true) {
+                                    db.MimeTip.update({where: {
+                                        idZadatak : idDodanogZadatka,
+                                        mimeTip : mimeTipovi[j]
+                                    }})
+                                }    
+                            }  
+                            res.status(200).send();
+                        })
+                    }
+                })            
             })
         }else{
             res.send(null);
         }
-    })*/
-res.status(200).send();
+    })
+    */
 }) 
 
 // pomocne funkcije
