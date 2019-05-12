@@ -214,11 +214,11 @@ app.put('/zadaca/:idZadace', function(req,res){ // update
     
 // #endregion   
 }) 
-
+/*
 app.delete('/zadaca/:idZadace', function(req,res){
-    
 
-});
+
+});*/
 
 // pomocne funkcije
 
