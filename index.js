@@ -138,9 +138,26 @@ app.get('/getZadacaById/:idZadaca', function(req, res) {
 });
 
 app.put('/zadaca/:idZadace', function(req,res){ // update
-/*
+
     var bodyReq = req.body;
 
+    db.Zadaca.findOne({where : {
+        idZadaca : req.params.idZadace
+    }}).then(function(zadaca) {
+        try{
+            zadaca.update({
+                naziv : bodyReq.naziv,
+                rokZaPredaju : bodyReq.datum + " " + bodyReq.vrijeme + ":59",
+            }).then(function(){
+                res.status(200).send();
+            })
+        } catch {
+            res.status(404).send();
+        }    
+    })
+
+// #region Komentar prijasnjeg update
+/*
     db.Zadaca.findOne({where:{
         idZadaca : req.params.idZadace
     }}).then(function(zadaca){
@@ -193,9 +210,15 @@ app.put('/zadaca/:idZadace', function(req,res){ // update
         }else{
             res.send(null);
         }
-    })
-    */
+    })*/
+    
+// #endregion   
 }) 
+
+app.delete('/zadaca/:idZadace', function(req,res){
+    
+
+});
 
 // pomocne funkcije
 
