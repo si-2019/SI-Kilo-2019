@@ -214,11 +214,20 @@ app.put('/zadaca/:idZadace', function(req,res){ // update
     
 // #endregion   
 }) 
-/*
+
 app.delete('/zadaca/:idZadace', function(req,res){
 
+    db.Zadaca.destroy({where : {
+        idZadaca : req.params.idZadace
+    }}).then(function(brojObrisanihRedova) {
+        if(brojObrisanihRedova !== 1) {
+            res.status(404).send();
+        } else {
+            res.status(200).send();
+        }
+    })
 
-});*/
+});
 
 // pomocne funkcije
 
