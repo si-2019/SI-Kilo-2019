@@ -14,9 +14,11 @@ db.sequelize = sequelize;
 db.Zadaca = sequelize.import(__dirname + '/zadaca.js');
 db.Zadatak = sequelize.import(__dirname + '/zadatak.js');
 db.MimeTip = sequelize.import(__dirname + '/mimeTip.js');
+//db.StudentZadatak = sequelize.import(__dirname + '/student_zadatak.js');
 
 //relacije
 db.Zadaca.hasMany(db.Zadatak, {as: 'zadaci' , foreignKey: 'idZadaca' });
 db.Zadatak.hasMany(db.MimeTip, {as: 'mimeTipovi' , foreignKey: 'idZadatak' });
+//db.Zadatak.belongsToMany(db.Student// student moram importovati u db.student)
 
 module.exports = db;

@@ -18,6 +18,8 @@ db.sequelize.sync({force:false}).then(() => { //force:true je da se nas dio baze
     console.log(e);
 });
 
+// profesorov API
+
 app.post('/addZadaca', function(req, res) {
     var bodyReq = req.body;
     
@@ -215,7 +217,7 @@ app.put('/zadaca/:idZadace', function(req,res){ // update
 // #endregion   
 }) 
 
-app.delete('/zadaca/:idZadace', function(req,res){
+app.delete('/zadaca/:idZadace', function(req,res){ // delete 
 
     db.Zadaca.destroy({where : {
         idZadaca : req.params.idZadace
@@ -228,6 +230,10 @@ app.delete('/zadaca/:idZadace', function(req,res){
     })
 
 });
+
+// studentov API
+
+
 
 // pomocne funkcije
 
