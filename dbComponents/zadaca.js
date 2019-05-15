@@ -8,7 +8,6 @@ module.exports = function(sequelize){
         brojZadataka : Sequelize.INTEGER,
         rokZaPredaju : Sequelize.DATE,
         ukupnoBodova : Sequelize.INTEGER,
-        ukupniOstvareniBodovi : Sequelize.INTEGER,
         postavka : Sequelize.BLOB,
     }, {
         timestamps: false,
