@@ -76,6 +76,16 @@ app.post('/addZadaca', function(req, res) {
     }    
 });
 
+app.post('/ocijeniZadatak', function(req, res) {
+    var bodyReq = req.body;
+    /*
+    
+    imaš bodyReq.osvojeniBodovi, bodyReq.komentar, bodyReq.prepisanZadatak (prepisanZadatak je id od switcha)
+
+    */
+       
+});
+
 app.get('/getZadace', function(req, res) {
     var nizZadaca = [];
     
@@ -87,6 +97,51 @@ app.get('/getZadace', function(req, res) {
         res.end(JSON.stringify(nizZadaca));
     });
 });
+
+app.get('/getStudenteKojimaNijePregledanaZadaca', function(req, res) {
+    var nizStudenata = [{id : 0, naziv : "Mala Mu"},{id : 1, naziv : "Nekic"}, {id : 2, naziv : "Medi"}, {id : 3, naziv : "Haker"}];
+    
+    res.type("json");
+    res.end(JSON.stringify(nizStudenata));
+});
+
+app.get('/getStudenteKojiSuPoslaliZadacu', function(req, res) {
+    var nizStudenata = [{id : 0, naziv : "Neko"},{id : 1, naziv : "Nekic"}, {id : 2, naziv : "Medi"}, {id : 3, naziv : "Haker"}];
+    
+    res.type("json");
+    res.end(JSON.stringify(nizStudenata));
+});
+
+app.get('/getDatoteku', function(req, res) {
+});
+
+app.get('/getPregledDatoteke', function(req, res) {
+});
+
+app.get('/getZadacuStudenta/:idZadace/:idStudenta', function(req, res) {
+    var zadacaState = {
+        zadaciZadace: ["Zadatak 1", "Zadatak 2", "Zadatak 3", "Zadatak 4", "Zadatak 5"],
+        postavkaZadace: "Zadaca 1",
+        moguciBodovi: [1,2,3,4,5],
+        ostvareniBodovi: [1,1,1,1,1],
+        rokZaPredaju: "2020-12-01 23:59",
+        stanjeZadatakaZadace: [0,1,2,3,4],
+        pregledanZadatak: [true,true,false,false,false],
+      }
+
+    res.send(zadacaState);
+});
+
+
+
+app.get('/getStudenteKojiNisuPoslaliZadacu', function(req, res) {
+    var nizStudenata = [{id : 0, naziv : "Charmander"},{id : 1, naziv : "Nekic"}, {id : 2, naziv : "Medi"}, {id : 3, naziv : "Haker"}];
+    
+    res.type("json");
+    res.end(JSON.stringify(nizStudenata));
+});
+
+
 
 app.get('/getZadacaById/:idZadaca', function(req, res) {
 
