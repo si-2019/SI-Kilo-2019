@@ -97,6 +97,7 @@ app.post("/ocijeniZadatak", function(req, res) {
     imaš bodyReq.osvojeniBodovi, bodyReq.komentar, bodyReq.prepisanZadatak (prepisanZadatak je id od switcha)
 
     */
+   res.status(200).send();
 });
 
 app.get("/getZadace", function(req, res) {
@@ -137,9 +138,12 @@ app.get("/getStudenteKojiSuPoslaliZadacu", function(req, res) {
 
 app.get("/getDatoteku", function(req, res) {
     //console.log('datoteka preuzmi');
+    res.status(200).send();
 });
 
-app.get("/getPregledDatoteke", function(req, res) {});
+app.get("/getPregledDatoteke", function(req, res) {
+    res.status(200).send();
+});
 
 app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
   var zadacaState = {
