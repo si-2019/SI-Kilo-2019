@@ -3,7 +3,7 @@ const sequelize = new Sequelize(
     "TYQcLL35gV", // database
     "TYQcLL35gV", // username
     "BLysSj9ZrP", // password
-    {host:"37.59.55.185",dialect:"mysql"});
+    {host:"37.59.55.185", dialect:"mysql", timezone: '+01:00'});
 
 const db={};
 

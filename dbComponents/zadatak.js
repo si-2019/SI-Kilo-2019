@@ -6,13 +6,6 @@ module.exports = function(sequelize){
         idZadaca  : Sequelize.INTEGER,
         redniBrojZadatkaUZadaci : Sequelize.INTEGER,
         maxBrojBodova : Sequelize.INTEGER,
-        brojOstvarenihBodova : Sequelize.INTEGER,
-        profesorovKomentar : Sequelize.STRING,
-        datumPredaje : Sequelize.DATE,
-        statusZadatka : Sequelize.STRING,
-        sadrzajFile : Sequelize.BLOB,
-        velicinaFile : Sequelize.INTEGER,
-        mimeTipUpdateZadatka : Sequelize.STRING
     }, {
         timestamps: false,
         freezeTableName: true,
