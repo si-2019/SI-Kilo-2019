@@ -28,10 +28,14 @@ app.post('/addZadaca', upload.any(), function(req, res) {
     var bodyReq = JSON.parse(req.body.state);
 
     var postavkaFajla = null;
+    var imeFajlaPostavke = null;
+    var tipFajlaPostavke = null;
     if(req.files.length > 0) {
         postavkaFajla =  req.files[0].buffer;
+        imeFajlaPostavke = req.body.imeFajlaPostavke
+        tipFajlaPostavke = req.files[0].mimetype
     }
-    
+
     db.Zadaca.findOne({where: {
         naziv : bodyReq.naziv
     }})
@@ -46,16 +50,19 @@ app.post('/addZadaca', upload.any(), function(req, res) {
                 brojZadataka : bodyReq.brojZadataka,
                 rokZaPredaju : bodyReq.datum + " " + bodyReq.vrijeme + ":59",
                 ukupnoBodova : bodyReq.ukupnoBodova,
-                postavka: postavkaFajla
-            }}).then(function(dodanaZadaca){
+                postavka: postavkaFajla,
+                imeFajlaPostavke : imeFajlaPostavke,
+                tipFajlaPostavke : tipFajlaPostavke,
+            }})
+            .then(function(dodanaZadaca){
                 var idDodaneZadace = dodanaZadaca[0].idZadaca;
                 for(let i = 0; i < dodanaZadaca[0].brojZadataka; i++) {
                     db.Zadatak.findOrCreate({where :{
                         idZadaca : idDodaneZadace,
                         redniBrojZadatkaUZadaci : i,
                         maxBrojBodova : bodyReq.listaBodova[i]         
-                    }}).then(function(dodaniZadatak){
-                        console.log(dodaniZadatak);
+                    }})
+                    .then(function(dodaniZadatak){
                         var idDodanogZadatka = dodaniZadatak[0].idZadatak;
                         var mimeTipovi = [".pdf", ".zip", ".m", ".doc", ".txt"];
                         for(let j = 0; j < 5; j++) {    
@@ -65,8 +72,7 @@ app.post('/addZadaca', upload.any(), function(req, res) {
                                     mimeTip : mimeTipovi[j]
                                 }})
                             }    
-                        }  
-                        console.log("haha");
+                        } 
                         res.status(200).send();
                     })
                 }   
@@ -96,15 +102,16 @@ app.get('/getZadacaById/:idZadaca', function(req, res) {
 
     db.Zadaca.findOne({where:{
         idZadaca : req.params.idZadaca
-    }}).then(function(zadaca){
+    }})
+    .then(function(zadaca){
         data = {
             idZadaca : req.params.idZadaca,
             radnja : "Azuriranje",
             idPredmet : zadaca.idPredmet,
             naziv : zadaca.naziv,
-            datum : dajDatum(zadaca.rokZaPredaju),      // ovo treba rijesiti
-            vrijeme : dajVrijeme(zadaca.rokZaPredaju),    // ovo treba rijesiti
-            postavka : zadaca.postavka,  
+            datum : dajDatum(zadaca.rokZaPredaju),      
+            vrijeme : dajVrijeme(zadaca.rokZaPredaju),    
+            postavka : [zadaca.postavka],  
             brojZadataka : zadaca.brojZadataka,
             sviTipoviIsti : false,            
             ukupnoBodova : zadaca.ukupnoBodova,
@@ -116,7 +123,8 @@ app.get('/getZadacaById/:idZadaca', function(req, res) {
               as: 'mimeTipovi',
             }],
             where: {idZadaca : req.params.idZadaca}
-          }).then(function (zadaciZadace){
+          })
+          .then(function (zadaciZadace){
             var listaBodovaTMP = [];
             var listaTipovaTMP = [];
 
@@ -140,94 +148,71 @@ app.get('/getZadacaById/:idZadaca', function(req, res) {
     })
 });
 
-app.put('/zadaca/:idZadace', function(req,res){ // update
+app.put('/zadaca/:idZadace', upload.any(), function(req,res){ // update
 
-    var bodyReq = req.body;
+    var bodyReq = JSON.parse(req.body.state);
 
-    db.Zadaca.findOne({where : {
-        idZadaca : req.params.idZadace
-    }}).then(function(zadaca) {
-        try{
+    if(req.files.length > 0 && req.files[0].mimetype !== "buffer") { //jest mijenjana postavka fajla
+        var postavkaFajla =  req.files[0].buffer;
+        var imeFajlaPostavke = req.body.imeFajlaPostavke
+        var tipFajlaPostavke = req.files[0].mimetype
+        db.Zadaca.findOne({where : {
+            idZadaca : req.params.idZadace
+        }})
+        .then(function(zadaca) {
+            zadaca.update({
+                naziv : bodyReq.naziv,
+                rokZaPredaju : bodyReq.datum + " " + bodyReq.vrijeme + ":59",
+                postavka: postavkaFajla,
+                imeFajlaPostavke : imeFajlaPostavke,
+                tipFajlaPostavke : tipFajlaPostavke,
+            })
+            .then(function(){
+                res.status(200).send();
+            })
+        })
+        .catch(err => res.send(err));
+    }
+    else {  // nije mijenjana postavka fajla
+        db.Zadaca.findOne({where : {
+            idZadaca : req.params.idZadace
+        }})
+        .then(function(zadaca) {
             zadaca.update({
                 naziv : bodyReq.naziv,
                 rokZaPredaju : bodyReq.datum + " " + bodyReq.vrijeme + ":59",
             }).then(function(){
                 res.status(200).send();
             })
-        } catch {
-            res.status(404).send();
-        }    
-    })
+        })
+        .catch(err => res.send(err));
+    }
 
-// #region Komentar prijasnjeg update
-/*
-    db.Zadaca.findOne({where:{
-        idZadaca : req.params.idZadace
-    }}).then(function(zadaca){
-        if(zadaca){
-            zadaca.update({
-                naziv : bodyReq.naziv,
-                brojZadataka : bodyReq.brojZadataka,
-                rokZaPredaju : bodyReq.datum + " " + bodyReq.vrijeme + ":59",
-                ukupnoBodova : bodyReq.ukupnoBodova,
-                ukupniOstvareniBodovi : 0,
-                postavka: bodyReq.postavka
-            }).then(function(updateZadaca){
-                db.Zadatak.findAll({where : {
-                    idZadaca : updateZadaca.idZadaca
-                }}).then(function(zadaci){
-                    for(var i = 0; i < updateZadaca.brojZadataka; i++) {
-                        zadaci[i].update({where :{
-                            idZadaca : updateZadaca.idZadaca,
-                            redniBrojZadatkaUZadaci : i,
-                            maxBrojBodova : bodyReq.listaBodova[i],
-                            brojOstvarenihBodova : 0,
-                            profesorovKomentar : "",
-                            datumPredaje : null,
-                            statusZadatka : "neposlan",
-                            sadrzajFile : null,
-                            velicinaFile : null,
-                            mimeTipUpdateZadatka : null             
-                        }}).then(function(updateZadatak){
-                            db.mimeTip.findAll({where : {
-                                idZadatak : updateZadatak.idZadatak
-                            }}).then(function(mimeTipovi){
-                                for(var i = 0; i < updateZadatak.listaTipova.length; i++) {
-                                    mimeTipovi[i].update
-                                }
-                            })
-                            var mimeTipovi = [".pdf", ".zip", ".m", ".doc", ".txt"];
-                            for(let j = 0; j < 5; j++) {    
-                                if(bodyReq.listaTipova[i][j] === true) {
-                                    db.MimeTip.update({where: {
-                                        idZadatak : idDodanogZadatka,
-                                        mimeTip : mimeTipovi[j]
-                                    }})
-                                }    
-                            }  
-                            res.status(200).send();
-                        })
-                    }
-                })            
-            })
-        }else{
-            res.send(null);
-        }
-    })*/
     
-// #endregion   
 }) 
 
 app.delete('/zadaca/:idZadace', function(req,res){ // delete 
 
     db.Zadaca.destroy({where : {
         idZadaca : req.params.idZadace
-    }}).then(function(brojObrisanihRedova) {
+    }})
+    .then(function(brojObrisanihRedova) {
         if(brojObrisanihRedova !== 1) {
             res.status(404).send();
         } else {
             res.status(200).send();
         }
+    })
+
+});
+
+app.get('/getImeFajla/:idZadaca', function(req,res){ // update
+
+    db.Zadaca.findOne({where : {
+        idZadaca : req.params.idZadaca
+    }})
+    .then(function(zadaca){
+        res.send(zadaca.imeFajlaPostavke);
     })
 
 });
@@ -257,6 +242,7 @@ function dajDatum(dateTime) {
 function dajVrijeme(dateTime) {
     return dateTime.toString().substring(16,21);
 };
+
 
 
 app.listen(31911);

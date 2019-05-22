@@ -9,6 +9,8 @@ module.exports = function(sequelize){
         rokZaPredaju : Sequelize.DATE,
         ukupnoBodova : Sequelize.INTEGER,
         postavka : Sequelize.BLOB,
+        imeFajlaPostavke : Sequelize.STRING,
+        tipFajlaPostavke : Sequelize.STRING
     }, {
         timestamps: false,
         freezeTableName: true,
