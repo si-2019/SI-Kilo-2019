@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 db.sequelize
-  .sync({ force: false })
+  .sync({ force: false })// NE MIJENJAJ NA TRUE NIKAD
   .then(() => {
     //force:true je da se nas dio baze uvijek iznova kreira
     console.log("Usao u bazu!");
@@ -346,12 +346,11 @@ app.get("/dajZadaceZaStudenta/:indeks", function(req, res) {
     bodoviPoZadacimaZadaca: [[2, 2, 1.8], [0, 0, 0], [0, 0, 0]],
 
     rokZaPredaju: [
-      "9999-12-01 23:59",
-      "9999-12-01 23:59",
-      "9999-12-01 23:59",
-      "9999-12-01 23:59"
+      "2019-12-01 23:59",
+      "2019-02-01 23:59",
+      "1000-12-01 23:59"
     ],
-    stanjeZadacaPoZadacima: [[2, 2, 4], [3, 3, 3], [0, 1, 0]],
+    stanjeZadacaPoZadacima: [[2, 0, 4], [3, 2, 3], [0, 1, 0]],
     postavka: []
   };
 
