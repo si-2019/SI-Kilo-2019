@@ -312,9 +312,27 @@ app.get("/getImeFajla/:idZadaca", function(req, res) {
 });
 
 // studentov API
-app.get("/dozvoljeniTipoviZadatka", function(req, res) {
-  var listaTipova = [".pdf", ".txt"];
-  res.status(200).send(listaTipova);
+app.post("/dozvoljeniTipoviZadatka",upload.any(), function(req, res) {
+  var idZadatakk = req.body.medi;
+  //console.log(idZadatakk);
+  if(idZadatakk!==undefined)
+  db.MimeTip.findAll({
+    where: {
+      idZadatak: idZadatakk  }
+  })
+    .then(function(tipoviZadatka) {
+      //console.log(tipoviZadatka);
+      var nizTipova=[];
+      tipoviZadatka.map(mimeTip=>{
+        nizTipova.push(mimeTip.dataValues.mimeTip);
+        
+      });
+      //console.log(nizTipova);
+      res.status(200).send(nizTipova);
+    });
+
+  
+  else res.status(500).send();
 });
 
 app.get("/popuniZadatakVecPoslan", function(req, res) {
@@ -336,7 +354,7 @@ app.post("/slanjeZadatka", function(req, res) {
 
 app.get("/dajZadaceZaStudenta/:indeks", function(req, res) {
   var indeksStudenta = req.params.indeks;
-  //console.log(indeksStudenta);
+  console.log(indeksStudenta);
 
   //dohvati iz baze sve info o zadacama studenta sa indeksom indeksStudenta
   var data = {
