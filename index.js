@@ -146,23 +146,68 @@ app.get("/getPregledDatoteke", function(req, res) {
 });
 
 app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
-  var zadacaState = {
-    zadaciZadace: [
-      "Zadatak 1",
-      "Zadatak 2",
-      "Zadatak 3",
-      "Zadatak 4",
-      "Zadatak 5"
-    ],
-    postavkaZadace: "Zadaca 1",
-    moguciBodovi: [1, 2, 3, 4, 5],
-    ostvareniBodovi: [1, 1, 1, 1, 1],
-    rokZaPredaju: "2020-12-01 23:59",
-    stanjeZadatakaZadace: [0, 1, 2, 3, 4],
-    pregledanZadatak: [true, true, false, false, false]
-  };
 
-  res.send(zadacaState);
+  var zadaca = req.params.idZadace;
+  var student = req.params.idStudenta;
+  db.Korisnik.findOne({where: { idKorisnik: student }}).then(function(korisnik){
+    korisnik.getZadaci({where: { idZadaca: zadaca }}).then(function(zadaci){
+      db.Zadaca.findOne({where: { idZadaca: zadaca }}).then(function(postojiZadaca) {
+    
+        var nizZadataka=[], nizMogucihBodova = [], nizOstvarenih = [], nizStanja = [], nizPregledano = [];
+        for(var i=0;i<postojiZadaca.brojZadataka;i++){
+          var pom = i+1;
+          nizZadataka.push("Zadatak " + pom);
+          nizMogucihBodova.push(0);
+          nizOstvarenih.push(0);
+          nizStanja.push(0);
+          nizPregledano.push(false);
+        }
+
+        for(var i=0;i<zadaci.length;i++){
+          nizMogucihBodova[zadaci[i].redniBrojZadatkaUZadaci] = zadaci[i].maxBrojBodova;
+        }
+
+        db.StudentZadatak.findAll({where: { idStudent: student }}).then(function(nizStudentiZadatak) {
+             
+            for(var i=0;i<nizStudentiZadatak.length;i++){
+              var indeks = -1;
+              for(var j=0;j<zadaci.length;j++){
+                if(zadaci[j].idZadatak == nizStudentiZadatak[i].idZadatak) indeks = zadaci[j].redniBrojZadatkaUZadaci;
+              }
+
+              if(indeks!=-1){
+                nizOstvarenih[indeks] = nizStudentiZadatak[i].brojOstvarenihBodova;
+                nizStanja[indeks] = nizStudentiZadatak[i].stanjeZadatka;
+                if(nizStanja[indeks] == 2){ 
+                  nizPregledano[indeks] = false;
+
+                  //US 84
+                  var today = new Date();
+                  var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+                  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+                  var dateTime = date+' '+time;
+                  if(Date.parse(postojiZadaca.rokZaPredaju) < Date.parse(dateTime)){ nizOstvarenih[indeks] = 0;}
+            
+                }
+                else nizPregledano[indeks] = true;
+            }
+           }
+
+
+             var zadacaState = {
+              zadaciZadace: nizZadataka,
+              postavkaZadace: postojiZadaca.imeFajlaPostavke,
+              moguciBodovi: nizMogucihBodova,
+              ostvareniBodovi: nizOstvarenih,
+              rokZaPredaju: dajDatum(postojiZadaca.rokZaPredaju) + " " + dajVrijeme(postojiZadaca.rokZaPredaju),
+              stanjeZadatakaZadace: nizStanja,
+              pregledanZadatak: nizPregledano
+            };
+            res.send(zadacaState);
+        });
+      });
+    });
+  });
 });
 
 app.get("/getStudenteKojiNisuPoslaliZadacu", function(req, res) {
@@ -356,23 +401,54 @@ app.get("/dajZadaceZaStudenta/:indeks", function(req, res) {
   var indeksStudenta = req.params.indeks;
   console.log(indeksStudenta);
 
-  //dohvati iz baze sve info o zadacama studenta sa indeksom indeksStudenta
-  var data = {
-    listaZadaca: ["1", "2", "3"],
-    listaZadataka: ["Mjesec", "Cao", "pozz"], //ovjde treba staviti listu zadataka od zadace koja ima najvise zadataka -- zbog kreiranja tabele
-    maxBodoviPoZadacimaPoZadacama: [[2, 2, 2], [1, 1, 1], [3, 3, 3]],
-    bodoviPoZadacimaZadaca: [[2, 2, 1.8], [0, 0, 0], [0, 0, 0]],
+  db.Korisnik.findOne({where: { idKorisnik: indeksStudenta }}).then(function(korisnik){
+    korisnik.getZadaci().then(function(zadaci){
 
-    rokZaPredaju: [
-      "2019-12-01 23:59",
-      "2019-02-01 23:59",
-      "1000-12-01 23:59"
-    ],
-    stanjeZadacaPoZadacima: [[2, 0, 4], [3, 2, 3], [0, 1, 0]],
-    postavka: []
-  };
+      var idijeviZadaca = [];
+      for(var i=0;i<zadaci.length; i++){
+        var nasla = false;
+        for(var j=0;j<idijeviZadaca.length;j++){
+          if(zadaci[i].idZadaca == idijeviZadaca[j]) nasla = true;
+        }
 
-  res.status(200).send(data);
+        if(!nasla) idijeviZadaca.push(zadaci[i].idZadaca);
+      }
+
+  
+        db.Zadaca.findAll().then(function(zadaca){
+          var imenaZadaca = [], brojZadataka = 0, listaZadataka = [], rokoviZaPredaju = [];
+          for(var i=0;i<zadaca.length;i++){
+            var nasla = false;
+            for(var j=0;j<idijeviZadaca.length;j++){
+              if(zadaca[i].idZadaca == idijeviZadaca[j]) nasla = true;
+            }
+            if(nasla){ 
+              imenaZadaca.push(zadaca[i].naziv);
+              rokoviZaPredaju.push(dajDatum(zadaca[i].rokZaPredaju) + " " + dajVrijeme(zadaca[i].rokZaPredaju));
+              if(zadaca[i].brojZadataka>brojZadataka) brojZadataka = zadaca[i].brojZadataka;
+            }
+          }
+
+          for(var i = 1; i<brojZadataka+1; i++){
+            listaZadataka.push("Zadatak " + i);
+          }
+
+
+          //dohvati iz baze sve info o zadacama studenta sa indeksom indeksStudenta
+          var data = {
+            listaZadaca: imenaZadaca,
+            listaZadataka: listaZadataka, //ovjde treba staviti listu zadataka od zadace koja ima najvise zadataka -- zbog kreiranja tabele
+            maxBodoviPoZadacimaPoZadacama: [[2, 2, 2, -1], [1, 1, 1, -1]],
+            bodoviPoZadacimaZadaca: [[2, 2, 1.8, -1], [0, 0, 0, -1]],
+            rokZaPredaju: rokoviZaPredaju,
+            stanjeZadacaPoZadacima: [[2, 0, 4, -1], [3, 2, 3, -1]],
+            postavka: []
+          };
+
+          res.status(200).send(data);
+        });
+    });
+  });
 });
 
 // pomocne funkcije
@@ -396,5 +472,6 @@ function dajDatum(dateTime) {
 function dajVrijeme(dateTime) {
   return dateTime.toString().substring(16, 21);
 }
+
 
 app.listen(31911);

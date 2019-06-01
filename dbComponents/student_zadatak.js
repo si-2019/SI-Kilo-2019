@@ -10,7 +10,8 @@ module.exports = function(sequelize){
         velicinaDatoteke : Sequelize.INTEGER, // velicina je izrazena u MB
         komentar : Sequelize.STRING,
         tipDatoteke : Sequelize.STRING,
-        datoteka : Sequelize.BLOB
+        datoteka : Sequelize.BLOB,
+        stanjeZadatka :  Sequelize.INTEGER
     }, {
         timestamps: false,
         freezeTableName: true,

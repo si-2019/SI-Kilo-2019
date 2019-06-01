@@ -1,16 +1,5 @@
 const Sequelize = require("sequelize");
-const sequelize = new Sequelize(
-    "TYQcLL35gV", // database
-    "TYQcLL35gV", // username
-    "BLysSj9ZrP", // password
-    {   
-        host:"37.59.55.185", 
-        dialect:"mysql", 
-        timezone: '+01:00',
-        define: {
-            timestamps: false
-        }
-    });
+const sequelize = new Sequelize("bazasi","root","",{host:"localhost",dialect:"mysql",logging:false});
 
 const db={};
 
@@ -27,7 +16,8 @@ db.StudentZadatak = sequelize.import(__dirname + '/student_zadatak.js');
 //relacije
 db.Zadaca.hasMany(db.Zadatak, {as: 'zadaci' , foreignKey: 'idZadaca' });
 db.Zadatak.hasMany(db.MimeTip, {as: 'mimeTipovi' , foreignKey: 'idZadatak' });
-db.Korisnik.belongsToMany(db.Zadatak,{as:'zadaci', through: db.StudentZadatak, foreignKey:'id'});
+
+db.Korisnik.belongsToMany(db.Zadatak,{as:'zadaci', through: db.StudentZadatak, foreignKey:'idStudent'});
 db.Zadatak.belongsToMany(db.Korisnik,{as:'korisnici', through: db.StudentZadatak, foreignKey:'idZadatak'});
 
 module.exports = db;
