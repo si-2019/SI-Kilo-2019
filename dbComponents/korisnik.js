@@ -1,4 +1,4 @@
-module.exports = function(sequelize, DataTypes) {
+/*module.exports = function(sequelize, DataTypes) {
     return sequelize.define('Korisnik', {
       id: {
         type: DataTypes.INTEGER(10),
@@ -113,4 +113,4 @@ module.exports = function(sequelize, DataTypes) {
     }, {
       tableName: 'Korisnik'
     });
-  };
+  };*/
