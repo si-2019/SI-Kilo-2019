@@ -182,14 +182,13 @@ app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
               nizStanja[indeks] = studentZadatak[i].stanjeZadatka;
               if(nizStanja[indeks] == 2){ 
                 nizPregledano[indeks] = false;
-                
+
                 //US 84
                 var today = new Date();
                 var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
                 var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
                 var dateTime = date+' '+time;
                 if(Date.parse(postojiZadaca.rokZaPredaju) < Date.parse(dateTime)){ nizOstvarenih[indeks] = 0;}
-  
               }
               else nizPregledano[indeks] = true;
             }
@@ -399,27 +398,83 @@ app.post("/slanjeZadatka", function(req, res) {
   res.status(200).send(nazivUploada);
 });
 
-app.get("/dajZadaceZaStudenta/:indeks", function(req, res) {
-  var indeksStudenta = req.params.indeks;
-  console.log(indeksStudenta);
+app.get("/dajZadaceZaStudenta/:idStudenta/:idPredmeta", function(req, res) {
+  var student = req.params.idStudenta;
+  var predmet = req.params.idPredmeta;
+  console.log(predmet);
 
-  //dohvati iz baze sve info o zadacama studenta sa indeksom indeksStudenta
-  var data = {
-    listaZadaca: ["1", "2", "3"],
-    listaZadataka: ["Mjesec", "Cao", "pozz"], //ovjde treba staviti listu zadataka od zadace koja ima najvise zadataka -- zbog kreiranja tabele
-    maxBodoviPoZadacimaPoZadacama: [[2, 2, 2], [1, 1, 1], [3, 3, 3]],
-    bodoviPoZadacimaZadaca: [[2, 2, 1.8], [0, 0, 0], [0, 0, 0]],
+  db.Zadaca.findAll({where : {idPredmet: predmet}}).then(function(zadaca){
 
-    rokZaPredaju: [
-      "2019-12-01 23:59",
-      "2019-02-01 23:59",
-      "1000-12-01 23:59"
-    ],
-    stanjeZadacaPoZadacima: [[2, 0, 4], [3, 2, 3], [0, 1, 0]],
-    postavka: []
-  };
+    var imenaZadaca = [], brojZadataka = 0, listaZadataka = [], rokoviZaPredaju = [], postavke = [], maxBodoviPoZadacima = [];
+    for(var i=0;i<zadaca.length;i++){
+      imenaZadaca.push(zadaca[i].naziv);
+      rokoviZaPredaju.push(dajDatum(zadaca[i].rokZaPredaju) + " " + dajVrijeme(zadaca[i].rokZaPredaju));
+      postavke.push(zadaca[i].imeFajlaPostavke);
+      if(zadaca[i].brojZadataka>brojZadataka) brojZadataka = zadaca[i].brojZadataka; 
+      
 
-  res.status(200).send(data);
+      
+    }
+
+    for(var i = 1; i<brojZadataka+1; i++){
+      listaZadataka.push("Zadatak " + i);
+    }
+
+    db.Zadatak.findAll().then(function(zadaci){
+
+      var zadaciZadace = [], bodovi = [], stanja=[];
+      for(var i=0;i<zadaca.length;i++){
+        var pomocni = [], pomocni2 = [];
+        for(var j=0;j<zadaca[i].brojZadataka;j++){
+          pomocni.push(0);
+          pomocni2.push(0);
+        }
+        if(zadaca[i].brojZadataka<brojZadataka){
+          for(var k=0;k<brojZadataka-zadaca[i].brojZadataka;k++) {pomocni2.push(""); pomocni.push("");}
+        }
+        zadaciZadace.push(pomocni);
+        bodovi.push(pomocni2);
+        stanja.push(pomocni2);
+      }
+
+      for(var j=0; j<zadaca.length; j++){
+        for(var i=0; i<zadaci.length; i++){
+          if(zadaci[i].idZadaca == zadaca[j].idZadaca){
+            zadaciZadace[j][zadaci[i].redniBrojZadatkaUZadaci] = zadaci[i].maxBrojBodova;
+          } 
+        }
+      }
+
+      
+      db.StudentZadatak.findAll({where : {idStudent : student}}).then(function(studentic){
+        if(studentic){
+          for(var i=0;i<zadaca.length;i++){
+            for(var j=0;j<zadaci.length; j++){
+              for(var k=0;k<studentic.length;k++){
+                if(zadaca[i].idZadaca==zadaci[j].idZadaca && zadaci[j].idZadatak == studentic[k].idZadatak){
+                  bodovi[i][zadaci[j].redniBrojZadatkaUZadaci] = studentic[k].brojOstvarenihBodova;
+                  stanja[i][zadaci[j].redniBrojZadatkaUZadaci] = studentic[k].stanjeZadatka;
+                }
+              }
+            }
+          }
+
+        }
+        var data = {
+          listaZadaca: imenaZadaca,
+          listaZadataka: listaZadataka, //ovjde treba staviti listu zadataka od zadace koja ima najvise zadataka -- zbog kreiranja tabele
+          maxBodoviPoZadacimaPoZadacama: zadaciZadace,
+          bodoviPoZadacimaZadaca: bodovi,
+          rokZaPredaju:rokoviZaPredaju,
+          stanjeZadacaPoZadacima: stanja,
+          postavka: postavke
+        };
+        res.status(200).send(data);
+      });
+
+      //dohvati iz baze sve info o zadacama studenta sa indeksom indeksStudenta
+    });
+  });
 });
 
 // pomocne funkcije
