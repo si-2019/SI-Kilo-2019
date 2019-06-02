@@ -146,23 +146,70 @@ app.get("/getPregledDatoteke", function(req, res) {
 });
 
 app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
-  var zadacaState = {
-    zadaciZadace: [
-      "Zadatak 1",
-      "Zadatak 2",
-      "Zadatak 3",
-      "Zadatak 4",
-      "Zadatak 5"
-    ],
-    postavkaZadace: "Zadaca 1",
-    moguciBodovi: [1, 2, 3, 4, 5],
-    ostvareniBodovi: [1, 1, 1, 1, 1],
-    rokZaPredaju: "2020-12-01 23:59",
-    stanjeZadatakaZadace: [0, 1, 2, 3, 4],
-    pregledanZadatak: [true, true, false, false, false]
-  };
 
-  res.send(zadacaState);
+  var zadaca = req.params.idZadace;
+  var student = req.params.idStudenta;
+
+  db.Zadaca.findOne({where: { idZadaca: zadaca }}).then(function(postojiZadaca) {
+    
+    var nizZadataka=[], nizMogucihBodova = [], nizOstvarenih = [], nizStanja = [], nizPregledano = [];
+    for(var i=0;i<postojiZadaca.brojZadataka;i++){
+      var pom = i+1;
+      nizZadataka.push("Zadatak " + pom);
+      nizMogucihBodova.push(0);
+      nizOstvarenih.push(0);
+      nizStanja.push(0);
+      nizPregledano.push(false);
+    }
+
+    db.Zadatak.findAll({where: { idZadaca: zadaca }}).then(function(zadaci) {
+
+      for(var i=0;i<zadaci.length;i++){
+        nizMogucihBodova[zadaci[i].redniBrojZadatkaUZadaci] = zadaci[i].maxBrojBodova;
+      }
+
+      db.StudentZadatak.findAll({where: { idStudent: student }}).then(function(studentZadatak) {
+
+        if(studentZadatak){
+          for(var i = 0 ; i < studentZadatak.length ; i++){
+            var indeks = -1;
+            for(var j = 0 ; j < zadaci.length ; j++){
+              if(studentZadatak[i].idZadatak == zadaci[j].idZadatak) indeks = zadaci[j].redniBrojZadatkaUZadaci;
+            }
+
+            if(indeks!=-1){
+              nizOstvarenih[indeks] = studentZadatak[i].brojOstvarenihBodova;
+              nizStanja[indeks] = studentZadatak[i].stanjeZadatka;
+              if(nizStanja[indeks] == 2){ 
+                nizPregledano[indeks] = false;
+                
+                //US 84
+                var today = new Date();
+                var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+                var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+                var dateTime = date+' '+time;
+                if(Date.parse(postojiZadaca.rokZaPredaju) < Date.parse(dateTime)){ nizOstvarenih[indeks] = 0;}
+  
+              }
+              else nizPregledano[indeks] = true;
+            }
+          }
+
+        }
+
+        var zadacaState = {
+          zadaciZadace: nizZadataka,
+          postavkaZadace: postojiZadaca.imeFajlaPostavke,
+          moguciBodovi: nizMogucihBodova,
+          ostvareniBodovi: nizOstvarenih,
+          rokZaPredaju: dajDatum(postojiZadaca.rokZaPredaju) + " " + dajVrijeme(postojiZadaca.rokZaPredaju),
+          stanjeZadatakaZadace: nizStanja,
+          pregledanZadatak: nizPregledano
+        };
+        res.send(zadacaState);
+      });
+    });
+  });
 });
 
 app.get("/getStudenteKojiNisuPoslaliZadacu", function(req, res) {
