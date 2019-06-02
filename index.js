@@ -427,13 +427,13 @@ app.get("/dajZadaceZaStudenta/:idStudenta/:idPredmeta", function(req, res) {
         var pomocni = [], pomocni2 = [];
         for(var j=0;j<zadaca[i].brojZadataka;j++){
           pomocni.push(0);
-          pomocni2.push(0);
+          pomocni2.push("");
         }
         if(zadaca[i].brojZadataka<brojZadataka){
           for(var k=0;k<brojZadataka-zadaca[i].brojZadataka;k++) {pomocni2.push(""); pomocni.push("");}
         }
         zadaciZadace.push(pomocni);
-        bodovi.push(pomocni2);
+        bodovi.push(pomocni);
         stanja.push(pomocni2);
       }
 
