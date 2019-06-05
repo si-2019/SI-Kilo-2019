@@ -11,7 +11,8 @@ module.exports = function(sequelize){
         komentar : Sequelize.STRING,
         tipDatoteke : Sequelize.STRING,
         datoteka : Sequelize.BLOB,
-        stanjeZadatka : Sequelize.INTEGER
+        stanjeZadatka : Sequelize.INTEGER,
+        nazivDatoteke: Sequelize.STRING
     }, {
         timestamps: false,
         freezeTableName: true,

@@ -358,8 +358,9 @@ app.get("/getImeFajla/:idZadaca", function(req, res) {
 });
 
 // studentov API
-app.post("/dozvoljeniTipoviZadatka",upload.any(), function(req, res) {
-  var idZadatakk = req.body.medi;
+app.get("/dozvoljeniTipoviZadatka/:idZadatak", function(req, res) {
+  
+  var idZadatakk = req.params.idZadatak;
   //console.log(idZadatakk);
   if(idZadatakk!==undefined)
   db.MimeTip.findAll({
@@ -381,15 +382,31 @@ app.post("/dozvoljeniTipoviZadatka",upload.any(), function(req, res) {
   else res.status(500).send();
 });
 
-app.get("/popuniZadatakVecPoslan", function(req, res) {
-  var infoOZadatku = {
-    datumSlanja: "01.01.2019",
-    vrijemeSlanja: "22:05",
-    nazivFajla: "Testni",
-    velicinaFajla: "2MB",
-    komentar: ""
-  };
-  res.status(200).send(infoOZadatku);
+app.get("/popuniZadatakVecPoslan/:idZadatak", function(req, res) {
+  var idZadatakk = req.params.idZadatak;
+  if(idZadatakk!==undefined)
+  db.StudentZadatak.findAll({
+    where: {
+      idZadatak: idZadatakk  }
+  }).then(function(zadatak){
+     var zad=zadatak[0].dataValues;
+     var datumIVrijeme=zad.datumIVrijemeSlanja;
+    var mjesec=datumIVrijeme.getMonth();
+    mjesec++;
+    var infoOZadatku = {
+     
+      datumSlanja: datumIVrijeme.getDate()+ '/'+mjesec+'/'+datumIVrijeme.getFullYear(),
+      vrijemeSlanja: datumIVrijeme.toLocaleTimeString(),
+      nazivFajla: zad.nazivDatoteke,
+      velicinaFajla: zad.velicinaDatoteke+' MB',
+      komentar: zad.komentar
+    };
+  
+    res.status(200).send(infoOZadatku);
+});
+   
+    else res.status(500).send();
+
 });
 
 app.post("/slanjeZadatka", function(req, res) {
