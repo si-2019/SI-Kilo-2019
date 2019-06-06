@@ -102,7 +102,6 @@ app.post("/ocijeniZadatak", function(req, res) {
 
 app.get("/getZadace", function(req, res) {
   var nizZadaca = [];
-
   db.Zadaca.findAll().then(function(zadace) {
     for (let i = 0; i < zadace.length; i++) {
       nizZadaca.push({ id: zadace[i].idZadaca, naziv: zadace[i].naziv });
@@ -119,7 +118,6 @@ app.get("/getStudenteKojimaNijePregledanaZadaca", function(req, res) {
     { id: 2, naziv: "Medi" },
     { id: 3, naziv: "Haker" }
   ];
-
   res.type("json");
   res.end(JSON.stringify(nizStudenata));
 });
@@ -131,13 +129,11 @@ app.get("/getStudenteKojiSuPoslaliZadacu", function(req, res) {
     { id: 2, naziv: "Medi" },
     { id: 3, naziv: "Haker" }
   ];
-
   res.type("json");
   res.end(JSON.stringify(nizStudenata));
 });
 
 app.get("/getDatoteku", function(req, res) {
-    //console.log('datoteka preuzmi');
     res.status(200).send();
 });
 
@@ -146,13 +142,10 @@ app.get("/getPregledDatoteke", function(req, res) {
 });
 
 app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
-
   var zadaca = req.params.idZadace;
   var student = req.params.idStudenta;
-
   db.Zadaca.findOne({where: { idZadaca: zadaca }}).then(function(postojiZadaca) {
-    
-    var nizZadataka=[], nizMogucihBodova = [], nizOstvarenih = [], nizStanja = [], nizPregledano = [];
+    var nizZadataka=[], nizMogucihBodova = [], nizOstvarenih = [], nizStanja = [], nizPregledano = [], nizidZadaciZadace = [];
     for(var i=0;i<postojiZadaca.brojZadataka;i++){
       var pom = i+1;
       nizZadataka.push("Zadatak " + pom);
@@ -160,30 +153,25 @@ app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
       nizOstvarenih.push(0);
       nizStanja.push(0);
       nizPregledano.push(false);
+      nizidZadaciZadace.push("");
     }
-
     db.Zadatak.findAll({where: { idZadaca: zadaca }}).then(function(zadaci) {
-
       for(var i=0;i<zadaci.length;i++){
         nizMogucihBodova[zadaci[i].redniBrojZadatkaUZadaci] = zadaci[i].maxBrojBodova;
+        nizidZadaciZadace[zadaci[i].redniBrojZadatkaUZadaci] = zadaci[i].idZadatak;
       }
-
       db.StudentZadatak.findAll({where: { idStudent: student }}).then(function(studentZadatak) {
-
         if(studentZadatak){
           for(var i = 0 ; i < studentZadatak.length ; i++){
             var indeks = -1;
             for(var j = 0 ; j < zadaci.length ; j++){
               if(studentZadatak[i].idZadatak == zadaci[j].idZadatak) indeks = zadaci[j].redniBrojZadatkaUZadaci;
             }
-
             if(indeks!=-1){
               nizOstvarenih[indeks] = studentZadatak[i].brojOstvarenihBodova;
               nizStanja[indeks] = studentZadatak[i].stanjeZadatka;
               if(nizStanja[indeks] == 2){ 
                 nizPregledano[indeks] = false;
-
-                //US 84
                 var today = new Date();
                 var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
                 var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -193,9 +181,7 @@ app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
               else nizPregledano[indeks] = true;
             }
           }
-
         }
-
         var zadacaState = {
           zadaciZadace: nizZadataka,
           postavkaZadace: postojiZadaca.imeFajlaPostavke,
@@ -203,7 +189,8 @@ app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
           ostvareniBodovi: nizOstvarenih,
           rokZaPredaju: dajDatum(postojiZadaca.rokZaPredaju) + " " + dajVrijeme(postojiZadaca.rokZaPredaju),
           stanjeZadatakaZadace: nizStanja,
-          pregledanZadatak: nizPregledano
+          pregledanZadatak: nizPregledano,
+          idZadatakaZadace: nizidZadaciZadace
         };
         res.send(zadacaState);
       });
@@ -218,7 +205,6 @@ app.get("/getStudenteKojiNisuPoslaliZadacu", function(req, res) {
     { id: 2, naziv: "Medi" },
     { id: 3, naziv: "Haker" }
   ];
-
   res.type("json");
   res.end(JSON.stringify(nizStudenata));
 });
@@ -226,7 +212,6 @@ app.get("/getStudenteKojiNisuPoslaliZadacu", function(req, res) {
 app.get("/getZadacaById/:idZadaca", function(req, res) {
   var data = null;
   var mimeTipovi = [".pdf", ".zip", ".m", ".doc", ".txt"];
-
   db.Zadaca.findOne({
     where: {
       idZadaca: req.params.idZadaca
@@ -256,10 +241,8 @@ app.get("/getZadacaById/:idZadaca", function(req, res) {
     }).then(function(zadaciZadace) {
       var listaBodovaTMP = [];
       var listaTipovaTMP = [];
-
       for (let i = 0; i < zadaciZadace.length; i++) {
         //prolazi kroz zadatke
-
         listaBodovaTMP.push(zadaciZadace[i].maxBrojBodova);
         var listaTipovaJednogZadatka = [false, false, false, false, false];
         for (let j = 0; j < zadaciZadace[i].mimeTipovi.length; j++) {
@@ -281,9 +264,7 @@ app.get("/getZadacaById/:idZadaca", function(req, res) {
 
 app.put("/zadaca/:idZadace", upload.any(), function(req, res) {
   // update
-
   var bodyReq = JSON.parse(req.body.state);
-
   if (req.files.length > 0 && req.files[0].mimetype !== "buffer") {
     //jest mijenjana postavka fajla
     var postavkaFajla = req.files[0].buffer;
@@ -331,7 +312,6 @@ app.put("/zadaca/:idZadace", upload.any(), function(req, res) {
 
 app.delete("/zadaca/:idZadace", function(req, res) {
   // delete
-
   db.Zadaca.destroy({
     where: {
       idZadaca: req.params.idZadace
@@ -347,7 +327,6 @@ app.delete("/zadaca/:idZadace", function(req, res) {
 
 app.get("/getImeFajla/:idZadaca", function(req, res) {
   // update
-
   db.Zadaca.findOne({
     where: {
       idZadaca: req.params.idZadaca
@@ -359,7 +338,6 @@ app.get("/getImeFajla/:idZadaca", function(req, res) {
 
 // studentov API
 app.get("/dozvoljeniTipoviZadatka/:idZadatak", function(req, res) {
-  
   var idZadatakk = req.params.idZadatak;
   //console.log(idZadatakk);
   if(idZadatakk!==undefined)
@@ -371,42 +349,35 @@ app.get("/dozvoljeniTipoviZadatka/:idZadatak", function(req, res) {
       //console.log(tipoviZadatka);
       var nizTipova=[];
       tipoviZadatka.map(mimeTip=>{
-        nizTipova.push(mimeTip.dataValues.mimeTip);
-        
+        nizTipova.push(mimeTip.dataValues.mimeTip); 
       });
       //console.log(nizTipova);
       res.status(200).send(nizTipova);
     });
-
-  
   else res.status(500).send();
 });
 
 app.get("/popuniZadatakVecPoslan/:idZadatak", function(req, res) {
   var idZadatakk = req.params.idZadatak;
-  if(idZadatakk!==undefined)
-  db.StudentZadatak.findAll({
-    where: {
-      idZadatak: idZadatakk  }
-  }).then(function(zadatak){
-     var zad=zadatak[0].dataValues;
-     var datumIVrijeme=zad.datumIVrijemeSlanja;
-    var mjesec=datumIVrijeme.getMonth();
-    mjesec++;
-    var infoOZadatku = {
-     
-      datumSlanja: datumIVrijeme.getDate()+ '/'+mjesec+'/'+datumIVrijeme.getFullYear(),
-      vrijemeSlanja: datumIVrijeme.toLocaleTimeString(),
-      nazivFajla: zad.nazivDatoteke,
-      velicinaFajla: zad.velicinaDatoteke+' MB',
-      komentar: zad.komentar
-    };
-  
-    res.status(200).send(infoOZadatku);
-});
-   
-    else res.status(500).send();
-
+    if(idZadatakk!==undefined)
+    db.StudentZadatak.findAll({
+      where: {
+        idZadatak: idZadatakk  }
+    }).then(function(zadatak){
+      var zad=zadatak[0].dataValues;
+      var datumIVrijeme=zad.datumIVrijemeSlanja;
+      var mjesec=datumIVrijeme.getMonth();
+      mjesec++;
+      var infoOZadatku = {
+        datumSlanja: datumIVrijeme.getDate()+ '/'+mjesec+'/'+datumIVrijeme.getFullYear(),
+        vrijemeSlanja: datumIVrijeme.toLocaleTimeString(),
+        nazivFajla: zad.nazivDatoteke,
+        velicinaFajla: zad.velicinaDatoteke+' MB',
+        komentar: zad.komentar
+      };
+      res.status(200).send(infoOZadatku);
+  });
+      else res.status(500).send();
 });
 
 app.post("/slanjeZadatka", function(req, res) {
@@ -414,55 +385,50 @@ app.post("/slanjeZadatka", function(req, res) {
   //console.log(nazivUploada);
   res.status(200).send(nazivUploada);
 });
-
 app.get("/dajZadaceZaStudenta/:idStudenta/:idPredmeta", function(req, res) {
   var student = req.params.idStudenta;
   var predmet = req.params.idPredmeta;
-  console.log(predmet);
-
   db.Zadaca.findAll({where : {idPredmet: predmet}}).then(function(zadaca){
-
     var imenaZadaca = [], brojZadataka = 0, listaZadataka = [], rokoviZaPredaju = [], postavke = [], maxBodoviPoZadacima = [];
     for(var i=0;i<zadaca.length;i++){
       imenaZadaca.push(zadaca[i].naziv);
       rokoviZaPredaju.push(dajDatum(zadaca[i].rokZaPredaju) + " " + dajVrijeme(zadaca[i].rokZaPredaju));
       postavke.push(zadaca[i].imeFajlaPostavke);
-      if(zadaca[i].brojZadataka>brojZadataka) brojZadataka = zadaca[i].brojZadataka; 
-      
-
-      
+      if(zadaca[i].brojZadataka>brojZadataka) brojZadataka = zadaca[i].brojZadataka;  
     }
-
     for(var i = 1; i<brojZadataka+1; i++){
       listaZadataka.push("Zadatak " + i);
     }
-
     db.Zadatak.findAll().then(function(zadaci){
-
-      var zadaciZadace = [], bodovi = [], stanja=[];
+      var maxZadaciZadace = [], bodovi = [], stanja=[], nizIdZadaci = [];
       for(var i=0;i<zadaca.length;i++){
-        var pomocni = [], pomocni2 = [];
+        var pom = [], pomocni2 = [], pomocni3=[], pomocni4 = [];
         for(var j=0;j<zadaca[i].brojZadataka;j++){
-          pomocni.push(0);
+          pom.push("");
           pomocni2.push("");
+          pomocni3.push("");
+          pomocni4.push("");
         }
         if(zadaca[i].brojZadataka<brojZadataka){
-          for(var k=0;k<brojZadataka-zadaca[i].brojZadataka;k++) {pomocni2.push(""); pomocni.push("");}
+          for(var k=0;k<brojZadataka-zadaca[i].brojZadataka;k++) {
+            pomocni2.push(""); 
+            pom.push(""); 
+            pomocni3.push(""); 
+            pomocni4.push("");}
         }
-        zadaciZadace.push(pomocni);
-        bodovi.push(pomocni);
+        nizIdZadaci.push(pom);
+        maxZadaciZadace.push(pomocni3);
+        bodovi.push(pomocni4);
         stanja.push(pomocni2);
       }
-
       for(var j=0; j<zadaca.length; j++){
         for(var i=0; i<zadaci.length; i++){
           if(zadaci[i].idZadaca == zadaca[j].idZadaca){
-            zadaciZadace[j][zadaci[i].redniBrojZadatkaUZadaci] = zadaci[i].maxBrojBodova;
+            maxZadaciZadace[j][zadaci[i].redniBrojZadatkaUZadaci] = zadaci[i].maxBrojBodova;
+            nizIdZadaci[j][zadaci[i].redniBrojZadatkaUZadaci] = zadaci[i].idZadatak;
           } 
         }
       }
-
-      
       db.StudentZadatak.findAll({where : {idStudent : student}}).then(function(studentic){
         if(studentic){
           for(var i=0;i<zadaca.length;i++){
@@ -475,21 +441,19 @@ app.get("/dajZadaceZaStudenta/:idStudenta/:idPredmeta", function(req, res) {
               }
             }
           }
-
         }
         var data = {
           listaZadaca: imenaZadaca,
-          listaZadataka: listaZadataka, //ovjde treba staviti listu zadataka od zadace koja ima najvise zadataka -- zbog kreiranja tabele
-          maxBodoviPoZadacimaPoZadacama: zadaciZadace,
+          listaZadataka: listaZadataka, 
+          maxBodoviPoZadacimaPoZadacama: maxZadaciZadace,
           bodoviPoZadacimaZadaca: bodovi,
           rokZaPredaju:rokoviZaPredaju,
           stanjeZadacaPoZadacima: stanja,
-          postavka: postavke
+          postavka: postavke,
+          idPoZadacimaZadaca: nizIdZadaci
         };
         res.status(200).send(data);
       });
-
-      //dohvati iz baze sve info o zadacama studenta sa indeksom indeksStudenta
     });
   });
 });
