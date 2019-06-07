@@ -5,7 +5,7 @@ module.exports = function(sequelize){
         idZadatak : {type: Sequelize.INTEGER, primaryKey : true, autoIncrement : true},
         idZadaca  : Sequelize.INTEGER,
         redniBrojZadatkaUZadaci : Sequelize.INTEGER,
-        maxBrojBodova : Sequelize.INTEGER,
+        maxBrojBodova : Sequelize.DOUBLE,
     }, {
         timestamps: false,
         freezeTableName: true,

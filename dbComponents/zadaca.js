@@ -7,7 +7,7 @@ module.exports = function(sequelize){
         naziv : Sequelize.STRING,
         brojZadataka : Sequelize.INTEGER,
         rokZaPredaju : Sequelize.DATE,
-        ukupnoBodova : Sequelize.INTEGER,
+        ukupnoBodova : Sequelize.DOUBLE,
         postavka : Sequelize.BLOB,
         imeFajlaPostavke : Sequelize.STRING,
         tipFajlaPostavke : Sequelize.STRING

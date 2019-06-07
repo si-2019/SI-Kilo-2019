@@ -5,7 +5,7 @@ module.exports = function(sequelize){
         idStudentZadatak : {type: Sequelize.INTEGER, primaryKey : true, autoIncrement : true},
         idStudent : Sequelize.INTEGER,
         idZadatak : Sequelize.INTEGER,
-        brojOstvarenihBodova : Sequelize.INTEGER,
+        brojOstvarenihBodova : Sequelize.DOUBLE,
         datumIVrijemeSlanja : Sequelize.DATE,
         velicinaDatoteke : Sequelize.INTEGER, // velicina je izrazena u MB
         komentar : Sequelize.STRING,
