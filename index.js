@@ -176,7 +176,9 @@ app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
                 var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
                 var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
                 var dateTime = date+' '+time;
-                if(Date.parse(postojiZadaca.rokZaPredaju) < Date.parse(dateTime)){ nizOstvarenih[indeks] = 0;}
+                if(Date.parse(postojiZadaca.rokZaPredaju) < Date.parse(dateTime)){ 
+                  nizOstvarenih[indeks] = 0;
+                }
               }
               else nizPregledano[indeks] = true;
             }
@@ -405,7 +407,7 @@ app.get("/dajZadaceZaStudenta/:idStudenta/:idPredmeta", function(req, res) {
         var pom = [], pomocni2 = [], pomocni3=[], pomocni4 = [];
         for(var j=0;j<zadaca[i].brojZadataka;j++){
           pom.push("");
-          pomocni2.push("");
+          pomocni2.push(0);
           pomocni3.push("");
           pomocni4.push("");
         }
