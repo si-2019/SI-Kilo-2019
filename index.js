@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 db.sequelize
-  .sync({ force: false })// NE MIJENJAJ NA TRUE NIKAD
+  .sync({ force: false }) // NE MIJENJAJ NA TRUE NIKAD
   .then(() => {
     //force:true je da se nas dio baze uvijek iznova kreira
     console.log("Usao u bazu!");
@@ -97,7 +97,7 @@ app.post("/ocijeniZadatak", function(req, res) {
     imaš bodyReq.osvojeniBodovi, bodyReq.komentar, bodyReq.prepisanZadatak (prepisanZadatak je id od switcha)
 
     */
-   res.status(200).send();
+  res.status(200).send();
 });
 
 app.get("/getZadace", function(req, res) {
@@ -112,37 +112,78 @@ app.get("/getZadace", function(req, res) {
   });
 });
 
-app.get("/getStudenteKojimaNijePregledanaZadaca", function(req, res) {
-  var nizStudenata = [
-    { id: 0, naziv: "Mala Mu" },
-    { id: 1, naziv: "Nekic" },
-    { id: 2, naziv: "Medi" },
-    { id: 3, naziv: "Haker" }
-  ];
+app.get("/getZadace/:predmetId", async function(req, res) {
+  try {
+    const predmet = await db.Predmet.findOne({
+      where: {
+        id: req.params.predmetId
+      }
+    });
 
-  res.type("json");
-  res.end(JSON.stringify(nizStudenata));
+    if (!predmet) {
+      return res.status(404).send({ poruka: "Predmet ne postoji" });
+    }
+
+    const zadace = await db.Zadaca.findAll({});
+
+    return res.send(zadace);
+  } catch (e) {
+    return res.status(500).send(e);
+  }
 });
 
-app.get("/getStudenteKojiSuPoslaliZadacu", function(req, res) {
-  var nizStudenata = [
-    { id: 0, naziv: "Neko" },
-    { id: 1, naziv: "Nekic" },
-    { id: 2, naziv: "Medi" },
-    { id: 3, naziv: "Haker" }
-  ];
+app.get("/getStudenteKojimaNijePregledanaZadaca/:idZadaca", async function(
+  req,
+  res
+) {
+  const idZadaca = req.params.idZadaca;
 
-  res.type("json");
-  res.end(JSON.stringify(nizStudenata));
+  try {
+    const zadaca = await db.Zadaca.findOne({
+      where: {
+        idZadaca
+      }
+    });
+    if (!zadaca) {
+      return res.status(404).send({ poruka: "Zadaca nije nadjena" });
+    }
+    const korisnici = await db.Korisnik.findAll({});
+
+    return res.send(korisnici);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send(e);
+  }
+});
+
+app.get("/getStudenteKojiSuPoslaliZadacu/:idZadaca", async function(req, res) {
+  const idZadaca = req.params.idZadaca;
+
+  try {
+    const zadaca = await db.Zadaca.findOne({
+      where: {
+        idZadaca
+      }
+    });
+    if (!zadaca) {
+      return res.status(404).send({ poruka: "Zadaca nije nadjena" });
+    }
+    const korisnici = await db.Korisnik.findAll({});
+
+    return res.send(korisnici);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send(e);
+  }
 });
 
 app.get("/getDatoteku", function(req, res) {
-    //console.log('datoteka preuzmi');
-    res.status(200).send();
+  //console.log('datoteka preuzmi');
+  res.status(200).send();
 });
 
 app.get("/getPregledDatoteke", function(req, res) {
-    res.status(200).send();
+  res.status(200).send();
 });
 
 app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
@@ -165,16 +206,28 @@ app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
   res.send(zadacaState);
 });
 
-app.get("/getStudenteKojiNisuPoslaliZadacu", function(req, res) {
-  var nizStudenata = [
-    { id: 0, naziv: "Charmander" },
-    { id: 1, naziv: "Nekic" },
-    { id: 2, naziv: "Medi" },
-    { id: 3, naziv: "Haker" }
-  ];
+app.get("/getStudenteKojiNisuPoslaliZadacu/:idZadaca", async function(
+  req,
+  res
+) {
+  const idZadaca = req.params.idZadaca;
 
-  res.type("json");
-  res.end(JSON.stringify(nizStudenata));
+  try {
+    const zadaca = await db.Zadaca.findOne({
+      where: {
+        idZadaca
+      }
+    });
+    if (!zadaca) {
+      return res.status(404).send({ poruka: "Zadaca nije nadjena" });
+    }
+    const korisnici = await db.Korisnik.findAll({});
+
+    return res.send(korisnici);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send(e);
+  }
 });
 
 app.get("/getZadacaById/:idZadaca", function(req, res) {
@@ -312,26 +365,23 @@ app.get("/getImeFajla/:idZadaca", function(req, res) {
 });
 
 // studentov API
-app.post("/dozvoljeniTipoviZadatka",upload.any(), function(req, res) {
+app.post("/dozvoljeniTipoviZadatka", upload.any(), function(req, res) {
   var idZadatakk = req.body.medi;
   //console.log(idZadatakk);
-  if(idZadatakk!==undefined)
-  db.MimeTip.findAll({
-    where: {
-      idZadatak: idZadatakk  }
-  })
-    .then(function(tipoviZadatka) {
+  if (idZadatakk !== undefined)
+    db.MimeTip.findAll({
+      where: {
+        idZadatak: idZadatakk
+      }
+    }).then(function(tipoviZadatka) {
       //console.log(tipoviZadatka);
-      var nizTipova=[];
-      tipoviZadatka.map(mimeTip=>{
+      var nizTipova = [];
+      tipoviZadatka.map(mimeTip => {
         nizTipova.push(mimeTip.dataValues.mimeTip);
-        
       });
       //console.log(nizTipova);
       res.status(200).send(nizTipova);
     });
-
-  
   else res.status(500).send();
 });
 
@@ -363,11 +413,7 @@ app.get("/dajZadaceZaStudenta/:indeks", function(req, res) {
     maxBodoviPoZadacimaPoZadacama: [[2, 2, 2], [1, 1, 1], [3, 3, 3]],
     bodoviPoZadacimaZadaca: [[2, 2, 1.8], [0, 0, 0], [0, 0, 0]],
 
-    rokZaPredaju: [
-      "2019-12-01 23:59",
-      "2019-02-01 23:59",
-      "1000-12-01 23:59"
-    ],
+    rokZaPredaju: ["2019-12-01 23:59", "2019-02-01 23:59", "1000-12-01 23:59"],
     stanjeZadacaPoZadacima: [[2, 0, 4], [3, 2, 3], [0, 1, 0]],
     postavka: []
   };
