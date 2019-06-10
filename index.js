@@ -123,27 +123,81 @@ app.get("/getZadace", function(req, res) {
     res.end(JSON.stringify(nizZadaca));
   });
 });
+app.get("/getZadaceZaOcjenjivanje/:idPredmeta", function(req, res) {
+  var predmet = req.params.idPredmeta;
+  var nizZadaca = [];
 
-app.get("/getStudenteKojimaNijePregledanaZadaca", function(req, res) {
-  var nizStudenata = [
-    { id: 0, naziv: "Mala Mu" },
-    { id: 1, naziv: "Nekic" },
-    { id: 2, naziv: "Medi" },
-    { id: 3, naziv: "Haker" }
-  ];
-  res.type("json");
-  res.end(JSON.stringify(nizStudenata));
+  db.Zadaca.findAll({where : {idPredmet : predmet}}).then(function(zadace) {
+    var today = new Date();
+    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date+' '+time;
+
+    for (let i = 0; i < zadace.length; i++) {
+      if(Date.parse(zadace[i].rokZaPredaju) > Date.parse(dateTime)){ 
+        nizZadaca.push({ id: zadace[i].idZadaca, naziv: zadace[i].naziv });
+      }
+    }
+    res.type("json");
+    res.end(JSON.stringify(nizZadaca));
+  });
+});
+app.get("/getStudenteKojimaNijePregledanaZadaca/:idZadace", function(req, res) {
+  var zadaca = req.params.idZadace;
+  var studentiNisuPoslali = [];
+  db.Zadatak.findAll({where: {idZadaca : zadaca}}).then(function(zadaci){
+    if(zadaci){
+      db.StudentZadatak.findAll().then(function(studenti){
+        if(studenti){
+          for(var i = 0; i<nizStudenata.length; i++){
+            var brojPregledanihZaStudenta = 0;
+            for(var j=0; j<studenti.length; j++){
+              if(studenti[j].idStudent == nizStudenata[i].id){
+                for(var k = 0; k<zadaci.length; k++){
+                  if(zadaci[k].idZadatak == studenti[j].idZadatak && studenti[j].stanjeZadatka!=1) brojPregledanihZaStudenta = brojPregledanihZaStudenta + 1;
+                }
+              }
+            }
+            console.log(nizStudenata[i].naziv, brojPregledanihZaStudenta, zadaci.length);
+            if(brojPregledanihZaStudenta != 0 && brojPregledanihZaStudenta != zadaci.length) studentiNisuPoslali.push(nizStudenata[i]);
+          }
+        }
+        res.type("json");
+        res.end(JSON.stringify(studentiNisuPoslali));
+      });
+    }
+  });
 });
 
-app.get("/getStudenteKojiSuPoslaliZadacu", function(req, res) {
-  var nizStudenata = [
-    { id: 0, naziv: "Neko" },
-    { id: 1, naziv: "Nekic" },
-    { id: 2, naziv: "Medi" },
-    { id: 3, naziv: "Haker" }
-  ];
-  res.type("json");
-  res.end(JSON.stringify(nizStudenata));
+
+app.get("/getStudenteKojiSuPoslaliZadacu/:idZadace", function(req, res) {
+  
+  //Studenti kojima su svi zadaci pregledani!!
+  var zadaca = req.params.idZadace;
+  var studentiKojimaJePregledano = [];
+  db.Zadatak.findAll({where: {idZadaca : zadaca}}).then(function(zadaci){
+    if(zadaci){
+      db.StudentZadatak.findAll().then(function(studenti){
+        if(studenti){
+          for(var i = 0; i<nizStudenata.length; i++){
+            var brojPregledanihZaStudenta = 0;
+            for(var j=0; j<studenti.length; j++){
+              if(studenti[j].idStudent == nizStudenata[i].id){
+                for(var k = 0; k<zadaci.length; k++){
+                  if(zadaci[k].idZadatak == studenti[j].idZadatak && studenti[j].stanjeZadatka!=1) brojPregledanihZaStudenta = brojPregledanihZaStudenta + 1;
+                }
+              }
+            }
+            console.log(nizStudenata[i].naziv, brojPregledanihZaStudenta, zadaci.length);
+            if(brojPregledanihZaStudenta == zadaci.length) studentiKojimaJePregledano.push(nizStudenata[i]);
+          }
+        }
+        
+        res.type("json");
+        res.end(JSON.stringify(studentiKojimaJePregledano));
+      });
+    }
+  });
 });
 
 app.get("/getDatoteku", function(req, res) {
@@ -240,15 +294,41 @@ app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
   });
 });
 
-app.get("/getStudenteKojiNisuPoslaliZadacu", function(req, res) {
-  var nizStudenata = [
-    { id: 0, naziv: "Charmander" },
-    { id: 1, naziv: "Nekic" },
-    { id: 2, naziv: "Medi" },
-    { id: 3, naziv: "Haker" }
-  ];
-  res.type("json");
-  res.end(JSON.stringify(nizStudenata));
+var nizStudenata = [
+  { id: 0, naziv: "Edina Kovaè" },
+  { id: 1, naziv: "Medina Daciæ" },
+  { id: 2, naziv: "Petar Pejoviæ" },
+  { id: 3, naziv: "Din Bostandžiæ" },
+  { id: 4, naziv: "Irfan Duzan" }
+];
+
+app.get("/getStudenteKojiNisuPoslaliZadacu/:idZadace", function(req, res) {
+
+  var zadaca = req.params.idZadace;
+  var studentiNisuPoslali = [];
+  
+  db.Zadatak.findAll({where: {idZadaca : zadaca}}).then(function(zadaci){
+    if(zadaci){
+      db.StudentZadatak.findAll().then(function(studenti){
+        if(studenti){
+          for(var i = 0; i<nizStudenata.length; i++){
+            var brojPregledanihZaStudenta = 0;
+            for(var j=0; j<studenti.length; j++){
+              if(studenti[j].idStudent == nizStudenata[i].id){
+                for(var k = 0; k<zadaci.length; k++){
+                  if(zadaci[k].idZadatak == studenti[j].idZadatak && studenti[j].stanjeZadatka!=1) brojPregledanihZaStudenta = brojPregledanihZaStudenta + 1;
+                }
+              }
+            }
+            console.log(nizStudenata[i].naziv, brojPregledanihZaStudenta, zadaci.length);
+            if(brojPregledanihZaStudenta == 0) studentiNisuPoslali.push(nizStudenata[i]);
+          }
+        }
+        res.type("json");
+        res.end(JSON.stringify(studentiNisuPoslali));
+      });
+    }
+  });
 });
 
 app.get("/getZadacaById/:idZadaca", function(req, res) {
