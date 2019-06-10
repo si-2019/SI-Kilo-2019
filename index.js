@@ -428,11 +428,63 @@ app.get("/popuniZadatakVecPoslan/:idZadatak", function(req, res) {
   else res.status(500).send();
 });
 
-app.post("/slanjeZadatka", function(req, res) {
-  var nazivUploada = req.body;
-  //console.log(nazivUploada);
-  res.status(200).send(nazivUploada);
+app.post("/slanjeZadatka", upload.any(), function(req, res) {
+// prvi put slanje zadatka
+  var bodyReq = req.body;
+  var red = 
+  {
+    idStudent : bodyReq.idStudent,
+    idZadatak : bodyReq.idZadatak,
+    brojOstvarenihBodova : 0,
+    datumIVrijemeSlanja : bodyReq.datumIVrijemeSlanja,
+    velicinaDatoteke : bodyReq.velicinaFajla,
+    komentar : "",
+    tipDatoteke : bodyReq.tipFajla,
+    datoteka : req.files[0].buffer,
+    stanjeZadatka : 1,
+    nazivDatoteke : bodyReq.nazivFajla
+  }
+
+  db.StudentZadatak.findOne({ where: {
+    idStudent : bodyReq.idStudent,
+    idZadatak : bodyReq.idZadatak
+  }})
+  .then(function(pronadjenRed){
+    if(pronadjenRed) {  // red postoji
+      res.status(201).send()
+    }
+    else {
+      db.StudentZadatak.create(red)
+      .then(function(upisaniRed){
+        res.status(200).send()  
+      }).catch(err => res.send(err));  
+    }    
+  })
+
 });
+
+app.put("/slanjeZadatka", upload.any(), function(req, res){
+// update jer se zadatak ponovno salje
+
+  var bodyReq = req.body;
+  
+  db.StudentZadatak.findOne({ where: {
+    idStudent : bodyReq.idStudent,
+    idZadatak : bodyReq.idZadatak
+  }})
+  .then(function(pronadjenRed){
+    pronadjenRed.update({
+      datumIVrijemeSlanja : bodyReq.datumIVrijemeSlanja,
+      datoteka : req.files[0].buffer,
+      velicinaDatoteke : bodyReq.velicinaFajla,
+      tipDatoteke : bodyReq.tipFajla,
+      nazivDatoteke : bodyReq.nazivFajla
+    })
+  }).catch(err => res.send(err))
+
+  res.status(200).send();
+});
+
 app.get("/dajZadaceZaStudenta/:idStudenta/:idPredmeta", function(req, res) {
   var student = req.params.idStudenta;
   var predmet = req.params.idPredmeta;
