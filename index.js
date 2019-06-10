@@ -123,7 +123,25 @@ app.get("/getZadace", function(req, res) {
     res.end(JSON.stringify(nizZadaca));
   });
 });
+app.get("/getZadaceZaOcjenjivanje/:idPredmeta", function(req, res) {
+  var predmet = req.params.idPredmeta;
+  var nizZadaca = [];
 
+  db.Zadaca.findAll({where : {idPredmet : predmet}}).then(function(zadace) {
+    var today = new Date();
+    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date+' '+time;
+
+    for (let i = 0; i < zadace.length; i++) {
+      if(Date.parse(zadace[i].rokZaPredaju) > Date.parse(dateTime)){ 
+        nizZadaca.push({ id: zadace[i].idZadaca, naziv: zadace[i].naziv });
+      }
+    }
+    res.type("json");
+    res.end(JSON.stringify(nizZadaca));
+  });
+});
 app.get("/getStudenteKojimaNijePregledanaZadaca", function(req, res) {
   var nizStudenata = [
     { id: 0, naziv: "Mala Mu" },
