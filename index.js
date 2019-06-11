@@ -565,6 +565,18 @@ app.put("/slanjeZadatka", upload.any(), function(req, res){
   res.status(200).send();
 });
 
+app.get('/downloadPostavka/:nazivZadace', (req, res) => {
+
+  db.Zadaca.findOne({
+    where: {
+      naziv : req.params.nazivZadace
+    }
+  }).then(data => {
+      res.status(200).json(data);
+    })
+    .catch(e => res.status(400).send(e))
+})
+
 app.get("/dajZadaceZaStudenta/:idStudenta/:idPredmeta", function(req, res) {
   var student = req.params.idStudenta;
   var predmet = req.params.idPredmeta;
