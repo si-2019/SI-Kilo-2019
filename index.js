@@ -43,7 +43,8 @@ app.post("/addZadaca", upload.any(), function(req, res) {
 
   db.Zadaca.findOne({
     where: {
-      naziv: bodyReq.naziv
+      naziv : bodyReq.naziv,
+      idPredmet : bodyReq.idPredmet
     }
   })
     .then(function(postojiZadaca) {
