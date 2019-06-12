@@ -715,4 +715,4 @@ function dajVrijeme(dateTime) {
   return dateTime.toString().substring(16, 21);
 }
 
-app.listen(PORT);
+app.listen(PORT,function(){ console.log('server successfully started on port '+PORT); });

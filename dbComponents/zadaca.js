@@ -8,7 +8,7 @@ module.exports = function(sequelize){
         brojZadataka : Sequelize.INTEGER,
         rokZaPredaju : Sequelize.DATE,
         ukupnoBodova : Sequelize.DOUBLE,
-        postavka : Sequelize.BLOB,
+        postavka : Sequelize.BLOB('long'),
         imeFajlaPostavke : Sequelize.STRING,
         tipFajlaPostavke : Sequelize.STRING
     }, {
