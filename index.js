@@ -8,6 +8,8 @@ const multer = require("multer");
 
 const upload = multer();
 
+const PORT = process.env.PORT || 31911;
+
 app.use("*", cors()); // enable cors
 
 app.use(bodyParser.json());
@@ -713,4 +715,4 @@ function dajVrijeme(dateTime) {
   return dateTime.toString().substring(16, 21);
 }
 
-app.listen(31911);
+app.listen(PORT);
