@@ -8,6 +8,8 @@ const multer = require("multer");
 
 const upload = multer();
 
+const PORT = process.env.PORT || 31911;
+
 app.use("*", cors()); // enable cors
 
 app.use(bodyParser.json());
@@ -243,6 +245,7 @@ app.get("/getStudenteKojiSuPoslaliZadacu/:idZadace", function(req, res) {
   });
 });
 
+
 app.get("/getStudenteKojimaNijePregledanaZadaca/:idZadace", function(req, res) {
   var zadaca = req.params.idZadace;
   var studentiNisuPoslali = [];
@@ -272,6 +275,9 @@ app.get("/getStudenteKojimaNijePregledanaZadaca/:idZadace", function(req, res) {
   });
 });
 
+
+/*
+
 app.get("/getDatoteku", function(req, res) {
   res.status(200).send();
 });
@@ -279,7 +285,7 @@ app.get("/getDatoteku", function(req, res) {
 app.get("/getPregledDatoteke", function(req, res) {
   res.status(200).send();
 });
-
+*/
 app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
   var zadaca = req.params.idZadace;
   var student = req.params.idStudenta;
@@ -559,7 +565,8 @@ app.post("/slanjeZadatka", upload.any(), function(req, res) {
     tipDatoteke : bodyReq.tipFajla,
     datoteka : req.files[0].buffer,
     stanjeZadatka : 1,
-    nazivDatoteke : bodyReq.nazivFajla
+    nazivDatoteke : bodyReq.nazivFajla,
+    mimeTipFajla : req.files[0].mimetype
   }
 
   db.StudentZadatak.findOne({ where: {
@@ -595,7 +602,8 @@ app.put("/slanjeZadatka", upload.any(), function(req, res){
       datoteka : req.files[0].buffer,
       velicinaDatoteke : bodyReq.velicinaFajla,
       tipDatoteke : bodyReq.tipFajla,
-      nazivDatoteke : bodyReq.nazivFajla
+      nazivDatoteke : bodyReq.nazivFajla,
+      mimeTipFajla : req.files[0].mimetype
     })
   }).catch(err => res.send(err))
 
@@ -607,6 +615,19 @@ app.get('/downloadPostavka/:nazivZadace', (req, res) => {
   db.Zadaca.findOne({
     where: {
       naziv : req.params.nazivZadace
+    }
+  }).then(data => {
+      res.status(200).json(data);
+    })
+    .catch(e => res.status(400).send(e))
+})
+
+app.get('/downloadZadatak/:idStudent/:idZadatak', (req, res) => {
+
+  db.StudentZadatak.findOne({
+    where: {
+      idStudent : req.params.idStudent,
+      idZadatak : req.params.idZadatak
     }
   }).then(data => {
       res.status(200).json(data);
@@ -735,4 +756,4 @@ function dajVrijeme(dateTime) {
   return dateTime.toString().substring(16, 21);
 }
 
-app.listen(31911);
+app.listen(PORT,function(){ console.log('server successfully started on port '+PORT); });
