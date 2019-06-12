@@ -1,5 +1,6 @@
 const Sequelize = require("sequelize");
-const sequelize = new Sequelize(
+
+/*const sequelize = new Sequelize(
     "TYQcLL35gV", // database
     "TYQcLL35gV", // username
     "BLysSj9ZrP", // password
@@ -11,7 +12,8 @@ const sequelize = new Sequelize(
             timestamps: false
         }
     });
-
+*/
+const sequelize = new Sequelize("bazasi","root","",{host:"localhost",dialect:"mysql",logging:false});
 const db={};
 
 db.Sequelize = Sequelize;  
