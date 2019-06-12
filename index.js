@@ -199,7 +199,7 @@ app.get("/getStudenteKojiSuPoslaliZadacu/:idZadace", function(req, res) {
     }
   });
 });
-
+/*
 app.get("/getDatoteku", function(req, res) {
   res.status(200).send();
 });
@@ -207,7 +207,7 @@ app.get("/getDatoteku", function(req, res) {
 app.get("/getPregledDatoteke", function(req, res) {
   res.status(200).send();
 });
-
+*/
 app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
   var zadaca = req.params.idZadace;
   var student = req.params.idStudenta;
