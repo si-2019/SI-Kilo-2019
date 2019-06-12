@@ -12,7 +12,8 @@ module.exports = function(sequelize){
         tipDatoteke : Sequelize.STRING,
         datoteka : Sequelize.BLOB,
         stanjeZadatka : Sequelize.INTEGER,
-        nazivDatoteke: Sequelize.STRING
+        nazivDatoteke: Sequelize.STRING,
+        mimeTipFajla : Sequelize.STRING
     }, {
         timestamps: false,
         freezeTableName: true,

@@ -522,7 +522,8 @@ app.post("/slanjeZadatka", upload.any(), function(req, res) {
     tipDatoteke : bodyReq.tipFajla,
     datoteka : req.files[0].buffer,
     stanjeZadatka : 1,
-    nazivDatoteke : bodyReq.nazivFajla
+    nazivDatoteke : bodyReq.nazivFajla,
+    mimeTipFajla : req.files[0].mimetype
   }
 
   db.StudentZadatak.findOne({ where: {
@@ -558,7 +559,8 @@ app.put("/slanjeZadatka", upload.any(), function(req, res){
       datoteka : req.files[0].buffer,
       velicinaDatoteke : bodyReq.velicinaFajla,
       tipDatoteke : bodyReq.tipFajla,
-      nazivDatoteke : bodyReq.nazivFajla
+      nazivDatoteke : bodyReq.nazivFajla,
+      mimeTipFajla : req.files[0].mimetype
     })
   }).catch(err => res.send(err))
 
@@ -570,6 +572,19 @@ app.get('/downloadPostavka/:nazivZadace', (req, res) => {
   db.Zadaca.findOne({
     where: {
       naziv : req.params.nazivZadace
+    }
+  }).then(data => {
+      res.status(200).json(data);
+    })
+    .catch(e => res.status(400).send(e))
+})
+
+app.get('/downloadZadatak/:idStudent/:idZadatak', (req, res) => {
+
+  db.StudentZadatak.findOne({
+    where: {
+      idStudent : req.params.idStudent,
+      idZadatak : req.params.idZadatak
     }
   }).then(data => {
       res.status(200).json(data);
