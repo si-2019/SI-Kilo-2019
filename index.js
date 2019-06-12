@@ -116,9 +116,12 @@ app.post("/ocijeniZadatak", upload.any(), function(req, res) {
   res.status(200).send();
 });
 
-app.get("/getZadace", function(req, res) {
+app.get("/getZadace/:idPredmet", function(req, res) {
   var nizZadaca = [];
-  db.Zadaca.findAll().then(function(zadace) {
+  db.Zadaca.findAll({where:{
+    idPredmet : req.params.idPredmet
+  }})
+  .then(function(zadace) {
     for (let i = 0; i < zadace.length; i++) {
       nizZadaca.push({ id: zadace[i].idZadaca, naziv: zadace[i].naziv });
     }
