@@ -1,4 +1,5 @@
 const Sequelize = require("sequelize");
+
 const sequelize = new Sequelize(
     "TYQcLL35gV ", // database
     "TYQcLL35gV ", // username

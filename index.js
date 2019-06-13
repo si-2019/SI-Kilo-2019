@@ -93,9 +93,41 @@ app.post("/addZadaca", upload.any(), function(req, res) {
     .catch(err => res.send(err));
 });
 
+app.get("/bodoviZadace/:idStudenta/:idPredmet", function(req,res){
+  var student = req.params.idStudenta;
+  var predmet = req.params.idPredmet;
+  var brojBodova = 0;
+  
+  db.Zadaca.findAll({where: {idPredmet : predmet}}).then(function(zadaca){
+    db.Zadatak.findAll().then(function(zadaci){
+
+      if(zadaci){
+        var nizZadatakaNaZPredmetu = [];
+        for(var i=0;i<zadaci.length;i++){
+          for(var j=0;j<zadaca.length;j++){
+            if(zadaci[i].idZadaca == zadaca[j].idZadaca) nizZadatakaNaZPredmetu.push(zadaci[i]);
+          }
+        }
+        db.StudentZadatak.findAll({where : {idStudent: student}}).then(function(studenti){
+
+          if(student){
+            for(var i=0; i<studenti.length; i++){
+              for(var j=0; j<nizZadatakaNaZPredmetu.length; j++){
+                if(studenti[i].idZadatak == nizZadatakaNaZPredmetu[j].idZadatak) brojBodova = brojBodova + studenti[i].brojOstvarenihBodova;
+              }
+            }
+          }
+          res.type("json");
+          res.end(JSON.stringify(brojBodova));
+        });
+      }
+    });
+  });
+});
+
 app.post("/ocijeniZadatak", upload.any(), function(req, res) {
   var info = req.body;
-  console.log(info);
+  //console.log(info);
   db.StudentZadatak.findOne({
     where: { idZadatak: info.idZadatak }
   }).then(function(trazeniRed) {
@@ -140,7 +172,7 @@ app.get("/getZadaceZaOcjenjivanje/:idPredmeta", function(req, res) {
     var dateTime = date+' '+time;
 
     for (let i = 0; i < zadace.length; i++) {
-      if(Date.parse(zadace[i].rokZaPredaju) > Date.parse(dateTime)){ 
+      if(Date.parse(zadace[i].rokZaPredaju) < Date.parse(dateTime)){ 
         nizZadaca.push({ id: zadace[i].idZadaca, naziv: zadace[i].naziv });
       }
     }
@@ -148,9 +180,21 @@ app.get("/getZadaceZaOcjenjivanje/:idPredmeta", function(req, res) {
     res.end(JSON.stringify(nizZadaca));
   });
 });
-app.get("/getStudenteKojimaNijePregledanaZadaca/:idZadace", function(req, res) {
+
+
+var nizStudenata = [
+  { id: 0, naziv: "Edina Kovaè" },
+  { id: 1, naziv: "Medina Daciæ" },
+  { id: 2, naziv: "Petar Pejoviæ" },
+  { id: 3, naziv: "Din Bostandžiæ" },
+  { id: 4, naziv: "Irfan Duzan" }
+];
+
+app.get("/getStudenteKojiNisuPoslaliZadacu/:idZadace", function(req, res) {
+
   var zadaca = req.params.idZadace;
   var studentiNisuPoslali = [];
+  
   db.Zadatak.findAll({where: {idZadaca : zadaca}}).then(function(zadaci){
     if(zadaci){
       db.StudentZadatak.findAll().then(function(studenti){
@@ -160,12 +204,12 @@ app.get("/getStudenteKojimaNijePregledanaZadaca/:idZadace", function(req, res) {
             for(var j=0; j<studenti.length; j++){
               if(studenti[j].idStudent == nizStudenata[i].id){
                 for(var k = 0; k<zadaci.length; k++){
-                  if(zadaci[k].idZadatak == studenti[j].idZadatak && studenti[j].stanjeZadatka!=1) brojPregledanihZaStudenta = brojPregledanihZaStudenta + 1;
+                  if(zadaci[k].idZadatak == studenti[j].idZadatak) brojPregledanihZaStudenta = brojPregledanihZaStudenta + 1;
                 }
               }
             }
             console.log(nizStudenata[i].naziv, brojPregledanihZaStudenta, zadaci.length);
-            if(brojPregledanihZaStudenta != 0 && brojPregledanihZaStudenta != zadaci.length) studentiNisuPoslali.push(nizStudenata[i]);
+            if(brojPregledanihZaStudenta == 0) studentiNisuPoslali.push(nizStudenata[i]);
           }
         }
         res.type("json");
@@ -174,7 +218,6 @@ app.get("/getStudenteKojimaNijePregledanaZadaca/:idZadace", function(req, res) {
     }
   });
 });
-
 
 app.get("/getStudenteKojiSuPoslaliZadacu/:idZadace", function(req, res) {
   
@@ -205,7 +248,40 @@ app.get("/getStudenteKojiSuPoslaliZadacu/:idZadace", function(req, res) {
     }
   });
 });
+
+
+app.get("/getStudenteKojimaNijePregledanaZadaca/:idZadace", function(req, res) {
+  var zadaca = req.params.idZadace;
+  var studentiNisuPoslali = [];
+  db.Zadatak.findAll({where: {idZadaca : zadaca}}).then(function(zadaci){
+    if(zadaci){
+      db.StudentZadatak.findAll().then(function(studenti){
+        if(studenti){
+          for(var i = 0; i<nizStudenata.length; i++){
+            var brojPregledanihZaStudenta = 0;
+            for(var j=0; j<studenti.length; j++){
+              if(studenti[j].idStudent == nizStudenata[i].id){
+                for(var k = 0; k<zadaci.length; k++){
+                  if(zadaci[k].idZadatak == studenti[j].idZadatak && studenti[j].stanjeZadatka==1) brojPregledanihZaStudenta = brojPregledanihZaStudenta + 1;
+                }
+                console.log(brojPregledanihZaStudenta);
+              }
+            }
+            console.log("nije pregledana", nizStudenata[i].naziv, brojPregledanihZaStudenta, zadaci.length);
+            if(brojPregledanihZaStudenta != 0) studentiNisuPoslali.push(nizStudenata[i]);
+          }
+        }
+        console.log(studentiNisuPoslali);
+        res.type("json");
+        res.end(JSON.stringify(studentiNisuPoslali));
+      });
+    }
+  });
+});
+
+
 /*
+
 app.get("/getDatoteku", function(req, res) {
   res.status(200).send();
 });
@@ -300,42 +376,7 @@ app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
   });
 });
 
-var nizStudenata = [
-  { id: 0, naziv: "Edina Kovaè" },
-  { id: 1, naziv: "Medina Daciæ" },
-  { id: 2, naziv: "Petar Pejoviæ" },
-  { id: 3, naziv: "Din Bostandžiæ" },
-  { id: 4, naziv: "Irfan Duzan" }
-];
 
-app.get("/getStudenteKojiNisuPoslaliZadacu/:idZadace", function(req, res) {
-
-  var zadaca = req.params.idZadace;
-  var studentiNisuPoslali = [];
-  
-  db.Zadatak.findAll({where: {idZadaca : zadaca}}).then(function(zadaci){
-    if(zadaci){
-      db.StudentZadatak.findAll().then(function(studenti){
-        if(studenti){
-          for(var i = 0; i<nizStudenata.length; i++){
-            var brojPregledanihZaStudenta = 0;
-            for(var j=0; j<studenti.length; j++){
-              if(studenti[j].idStudent == nizStudenata[i].id){
-                for(var k = 0; k<zadaci.length; k++){
-                  if(zadaci[k].idZadatak == studenti[j].idZadatak && studenti[j].stanjeZadatka!=1) brojPregledanihZaStudenta = brojPregledanihZaStudenta + 1;
-                }
-              }
-            }
-            console.log(nizStudenata[i].naziv, brojPregledanihZaStudenta, zadaci.length);
-            if(brojPregledanihZaStudenta == 0) studentiNisuPoslali.push(nizStudenata[i]);
-          }
-        }
-        res.type("json");
-        res.end(JSON.stringify(studentiNisuPoslali));
-      });
-    }
-  });
-});
 
 app.get("/getZadacaById/:idZadaca", function(req, res) {
   var data = null;
