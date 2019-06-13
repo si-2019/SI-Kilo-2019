@@ -1,9 +1,9 @@
 const Sequelize = require("sequelize");
 
 const sequelize = new Sequelize(
-    "TYQcLL35gV ", // database
-    "TYQcLL35gV ", // username
-    "BLysSj9ZrP ", // password
+    "TYQcLL35gV", // database
+    "TYQcLL35gV", // username
+    "BLysSj9ZrP", // password
     {   
         host:"37.59.55.185", 
         dialect:"mysql", 
