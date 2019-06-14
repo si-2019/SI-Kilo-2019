@@ -230,15 +230,17 @@ app.get("/getStudenteKojiSuPoslaliZadacu/:idZadace", function(req, res) {
         if(studenti){
           for(var i = 0; i<nizStudenata.length; i++){
             var brojPregledanihZaStudenta = 0;
+            var brojPoslanihZaStudenta = 0;
             for(var j=0; j<studenti.length; j++){
               if(studenti[j].idStudent == nizStudenata[i].id){
                 for(var k = 0; k<zadaci.length; k++){
                   if(zadaci[k].idZadatak == studenti[j].idZadatak && studenti[j].stanjeZadatka!=1) brojPregledanihZaStudenta = brojPregledanihZaStudenta + 1;
+                  if(zadaci[k].idZadatak == studenti[j].idZadatak) brojPoslanihZaStudenta = brojPoslanihZaStudenta +1;
                 }
               }
             }
             console.log(nizStudenata[i].naziv, brojPregledanihZaStudenta, zadaci.length);
-            if(brojPregledanihZaStudenta == zadaci.length) studentiKojimaJePregledano.push(nizStudenata[i]);
+            if(brojPregledanihZaStudenta == brojPoslanihZaStudenta && brojPoslanihZaStudenta!=0) studentiKojimaJePregledano.push(nizStudenata[i]);
           }
         }
         
@@ -677,7 +679,7 @@ app.get("/dajZadaceZaStudenta/:idStudenta/:idPredmeta", function(req, res) {
           pom.push("");
           pomocni2.push(0);
           pomocni3.push("");
-          pomocni4.push("");
+          pomocni4.push(0);
         }
         if (zadaca[i].brojZadataka < brojZadataka) {
           for (var k = 0; k < brojZadataka - zadaca[i].brojZadataka; k++) {
@@ -712,6 +714,8 @@ app.get("/dajZadaceZaStudenta/:idStudenta/:idPredmeta", function(req, res) {
                     zadaca[i].idZadaca == zadaci[j].idZadaca &&
                     zadaci[j].idZadatak == studentic[k].idZadatak
                   ) {
+
+                    
                     bodovi[i][zadaci[j].redniBrojZadatkaUZadaci] =
                       studentic[k].brojOstvarenihBodova;
                     stanja[i][zadaci[j].redniBrojZadatkaUZadaci] =
