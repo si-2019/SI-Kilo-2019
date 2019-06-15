@@ -183,10 +183,10 @@ app.get("/getZadaceZaOcjenjivanje/:idPredmeta", function(req, res) {
 
 
 var nizStudenata = [
-  { id: 0, naziv: "Edina Kovaè" },
-  { id: 1, naziv: "Medina Daciæ" },
-  { id: 2, naziv: "Petar Pejoviæ" },
-  { id: 3, naziv: "Din Bostandžiæ" },
+  { id: 0, naziv: "Edina Kovač" },
+  { id: 1, naziv: "Medina Dacić" },
+  { id: 2, naziv: "Petar Pejović" },
+  { id: 3, naziv: "Din Bostandžić" },
   { id: 4, naziv: "Irfan Duzan" }
 ];
 
