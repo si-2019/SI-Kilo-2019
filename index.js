@@ -279,17 +279,6 @@ app.get("/getStudenteKojimaNijePregledanaZadaca/:idZadace", function(req, res) {
   });
 });
 
-
-/*
-
-app.get("/getDatoteku", function(req, res) {
-  res.status(200).send();
-});
-
-app.get("/getPregledDatoteke", function(req, res) {
-  res.status(200).send();
-});
-*/
 app.get("/getZadacuStudenta/:idZadace/:idStudenta", function(req, res) {
   var zadaca = req.params.idZadace;
   var student = req.params.idStudenta;
@@ -677,7 +666,7 @@ app.get("/dajZadaceZaStudenta/:idStudenta/:idPredmeta", function(req, res) {
           pom.push("");
           pomocni2.push(0);
           pomocni3.push("");
-          pomocni4.push("");
+          pomocni4.push(0);
         }
         if (zadaca[i].brojZadataka < brojZadataka) {
           for (var k = 0; k < brojZadataka - zadaca[i].brojZadataka; k++) {
